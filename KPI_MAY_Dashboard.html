@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPI Dashboard — พฤษภาคม 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --blue:#1e40af; --blue-lt:#3b82f6; --purple:#7c3aed;
+  --cyan:#0891b2; --amber:#d97706; --green:#16a34a; --red:#dc2626;
+  --bg:#f1f5f9; --card:#fff; --text:#1e293b; --muted:#64748b; --border:#e2e8f0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--text);}
+
+/* ─── Header ─── */
+.hdr{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:20px 32px;display:flex;justify-content:space-between;align-items:center;}
+.hdr h1{font-size:22px;font-weight:700;}
+.hdr .sub{font-size:13px;opacity:.75;margin-top:3px;}
+.hdr .badge{background:rgba(255,255,255,.2);padding:8px 16px;border-radius:20px;font-size:13px;}
+
+/* ─── Layout ─── */
+.wrap{padding:24px 32px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+
+/* ─── KPI Cards ─── */
+.kc{background:var(--card);border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-left:4px solid var(--blue);}
+.kc.b2b{border-left-color:var(--purple);}
+.kc.b2c{border-left-color:var(--cyan);}
+.kc.o2o{border-left-color:var(--amber);}
+.kc .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.kc .val{font-size:22px;font-weight:700;margin:5px 0 2px;}
+.kc .tgt{font-size:12px;color:var(--muted);}
+.kc .ach{font-size:13px;font-weight:600;color:var(--red);margin-top:2px;}
+.bar{height:6px;background:var(--border);border-radius:3px;margin-top:10px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;}
+
+/* ─── Tabs ─── */
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:20px;}
+.tab{padding:11px 22px;cursor:pointer;font-weight:600;font-size:14px;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;}
+.tab:hover{color:var(--blue-lt);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* ─── Cards ─── */
+.card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:16px;}
+.card h3{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+
+/* ─── Tables ─── */
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#f8fafc;padding:9px 12px;text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);}
+td{padding:9px 12px;border-bottom:1px solid #f1f5f9;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f8fafc;}
+.tr{text-align:right;} .tc{text-align:center;}
+.fw{font-weight:600;}
+.pos{color:var(--green);} .neg{color:var(--red);}
+
+/* ─── Progress rows ─── */
+.ch-row{padding:12px 0;border-bottom:1px solid var(--border);}
+.ch-row:last-child{border-bottom:none;}
+.ch-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.ch-name{font-weight:600;font-size:13px;}
+.ch-amt{font-size:11px;color:var(--muted);margin-bottom:5px;}
+
+/* ─── Badges ─── */
+.bdg{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.bdg-red{background:#fee2e2;color:#dc2626;}
+.bdg-amber{background:#fef3c7;color:#d97706;}
+.bdg-green{background:#dcfce7;color:#16a34a;}
+
+/* ─── Info row ─── */
+.ir{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+.ii{background:#f8fafc;border-radius:8px;padding:12px 16px;flex:1;min-width:110px;}
+.ii .il{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.ii .iv{font-size:18px;font-weight:700;margin-top:3px;}
+
+/* ─── Chart ─── */
+.ch{position:relative;height:240px;}
+
+@media(max-width:768px){
+  .g4{grid-template-columns:repeat(2,1fr);}
+  .g2{grid-template-columns:1fr;}
+  .wrap{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <h1>📊 KPI Dashboard — พฤษภาคม 2026</h1>
+    <div class="sub">Lotus's Go Fresh | ข้อมูล ณ วันที่ 10 พ.ค. 2026</div>
+  </div>
+  <div class="badge">📅 วันที่ผ่านมา 10 วัน | เหลือ 21 วัน</div>
+</div>
+
+<div class="wrap">
+
+<!-- ══ Summary KPI ══ -->
+<div class="g4">
+  <div class="kc">
+    <div class="lbl">🎯 Grand Total</div>
+    <div class="val">฿4.78M</div>
+    <div class="tgt">เป้า: ฿40.18M</div>
+    <div class="ach">11.90% achievement</div>
+    <div class="bar"><div class="bar-fill" style="width:11.9%;background:var(--blue);"></div></div>
+  </div>
+  <div class="kc b2b">
+    <div class="lbl">🏭 B2B รวม</div>
+    <div class="val">฿3.18M</div>
+    <div class="tgt">เป้า: ฿27.54M</div>
+    <div class="ach">11.55% achievement</div>
+    <div class="bar"><div class="bar-fill" style="width:11.55%;background:var(--purple);"></div></div>
+  </div>
+  <div class="kc b2c">
+    <div class="lbl">🛒 B2C</div>
+    <div class="val">฿1.53M</div>
+    <div class="tgt">เป้า: ฿11.94M</div>
+    <div class="ach">12.82% achievement</div>
+    <div class="bar"><div class="bar-fill" style="width:12.82%;background:var(--cyan);"></div></div>
+  </div>
+  <div class="kc o2o">
+    <div class="lbl">📦 O2O + Biglot</div>
+    <div class="val">฿67,842</div>
+    <div class="tgt">เป้า: ฿694,388</div>
+    <div class="ach">9.77% achievement</div>
+    <div class="bar"><div class="bar-fill" style="width:9.77%;background:var(--amber);"></div></div>
+  </div>
+</div>
+
+<!-- ══ Tabs ══ -->
+<div class="tabs">
+  <div class="tab active" onclick="sw('b2b',0)">🏭 B2B</div>
+  <div class="tab" onclick="sw('b2c',1)">🛒 B2C</div>
+  <div class="tab" onclick="sw('o2o',2)">📦 O2O</div>
+  <div class="tab" onclick="sw('kl',3)">📉 KL (Knownloss)</div>
+</div>
+
+<!-- ══════════════ B2B ══════════════ -->
+<div id="p-b2b" class="panel active">
+
+  <div class="g2">
+    <!-- Channel progress -->
+    <div class="card">
+      <h3>📊 ยอดขายแยก Channel</h3>
+      <div class="ch-row">
+        <div class="ch-top"><span class="ch-name">Makro (CV)</span><span class="bdg bdg-red">10.74%</span></div>
+        <div class="ch-amt">Actual ฿2,550,352 / Target ฿23,746,845</div>
+        <div class="bar" style="height:8px;"><div class="bar-fill" style="width:10.74%;background:var(--purple);"></div></div>
+      </div>
+      <div class="ch-row">
+        <div class="ch-top"><span class="ch-name">Hyper (CV)</span><span class="bdg bdg-red">19.42%</span></div>
+        <div class="ch-amt">Actual ฿423,449 / Target ฿2,179,996</div>
+        <div class="bar" style="height:8px;"><div class="bar-fill" style="width:19.42%;background:var(--purple);"></div></div>
+      </div>
+      <div class="ch-row">
+        <div class="ch-top"><span class="ch-name">Supermarket (CV)</span><span class="bdg bdg-red">17.90%</span></div>
+        <div class="ch-amt">Actual ฿191,781 / Target ฿1,071,550</div>
+        <div class="bar" style="height:8px;"><div class="bar-fill" style="width:17.9%;background:var(--purple);"></div></div>
+      </div>
+      <div class="ch-row">
+        <div class="ch-top"><span class="ch-name">Lotus's Mini (CV)</span><span class="bdg bdg-red">2.86%</span></div>
+        <div class="ch-amt">Actual ฿15,608 / Target ฿545,476</div>
+        <div class="bar" style="height:8px;"><div class="bar-fill" style="width:2.86%;background:var(--red);"></div></div>
+      </div>
+    </div>
+
+    <!-- CUS Type table -->
+    <div class="card">
+      <h3>👥 แยกตาม Customer Type</h3>
+      <table>
+        <thead>
+          <tr><th>ประเภท</th><th class="tr">KPI</th><th class="tr">Actual</th><th class="tr">Forecast</th><th class="tc">Ach%</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="fw">HoReCa</td><td class="tr">9,895,121</td><td class="tr">1,814,980</td><td class="tr">6,251,599</td><td class="tc"><span class="bdg bdg-red">35.08%</span></td></tr>
+          <tr><td class="fw">FR</td><td class="tr">2,137,972</td><td class="tr">759,911</td><td class="tr">2,617,472</td><td class="tc"><span class="bdg bdg-amber">53.56%</span></td></tr>
+          <tr><td class="fw">Service</td><td class="tr">1,333,110</td><td class="tr">426,803</td><td class="tr">1,470,099</td><td class="tc"><span class="bdg bdg-red">30.41%</span></td></tr>
+          <tr><td class="fw">Barcode</td><td class="tr">—</td><td class="tr">179,496</td><td class="tr">618,263</td><td class="tc">—</td></tr>
+          <tr style="background:#f5f3ff;font-weight:700;"><td>รวม</td><td class="tr">13,366,203</td><td class="tr">3,181,190</td><td class="tr">10,957,432</td><td class="tc"><span class="bdg bdg-red">39.78%</span></td></tr>
+        </tbody>
+      </table>
+      <div class="ir" style="margin-top:14px;margin-bottom:0;">
+        <div class="ii"><div class="il">Run Rate/วัน</div><div class="iv">฿333,522</div></div>
+        <div class="ii"><div class="il">Taokae Sales</div><div class="iv">฿284,012</div></div>
+        <div class="ii"><div class="il">HoReCa/วัน</div><div class="iv">฿201,664</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B2B Channel Chart -->
+  <div class="card">
+    <h3>📈 Target vs Actual — B2B Channels</h3>
+    <div class="ch"><canvas id="cB2B"></canvas></div>
+  </div>
+
+  <!-- AXTRA Trend -->
+  <div class="card">
+    <h3>📅 B2B AXTRA — แนวโน้มรายเดือน (FEB–MAY)</h3>
+    <div class="ch"><canvas id="cAXTRA"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════════════ B2C ══════════════ -->
+<div id="p-b2c" class="panel">
+  <div class="ir">
+    <div class="ii"><div class="il">Actual รวม</div><div class="iv">฿1,530,899</div></div>
+    <div class="ii"><div class="il">Target</div><div class="iv">฿11,940,753</div></div>
+    <div class="ii"><div class="il">Achievement</div><div class="iv neg">12.82%</div></div>
+    <div class="ii"><div class="il">Run Rate/วัน</div><div class="iv">฿170,100</div></div>
+    <div class="ii"><div class="il">Forecast</div><div class="iv">฿5,273,097</div></div>
+    <div class="ii"><div class="il">Forecast Ach%</div><div class="iv neg">44.16%</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3>📈 ยอดขาย B2C รายวัน (พ.ค. 1–5)</h3>
+      <div class="ch"><canvas id="cB2CSales"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>🧾 Transaction Count รายวัน</h3>
+      <div class="ch"><canvas id="cB2CTC"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 รายละเอียดยอดขาย B2C รายวัน</h3>
+    <table>
+      <thead>
+        <tr><th>วันที่</th><th class="tr">Sales (฿)</th><th class="tr">TC</th><th class="tr">TA (฿)</th><th class="tr">Margin%</th><th class="tr">%KL</th><th class="tr">%Bad</th><th class="tr">%RTC</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="fw">1 พ.ค.</td><td class="tr">312,345</td><td class="tr">926</td><td class="tr">337.30</td><td class="tr pos">9.30%</td><td class="tr neg">-2.00%</td><td class="tr neg">-1.00%</td><td class="tr neg">-1.00%</td></tr>
+        <tr><td class="fw">2 พ.ค.</td><td class="tr">322,783</td><td class="tr">1,000</td><td class="tr">320.50</td><td class="tr pos">9.50%</td><td class="tr pos">+1.40%</td><td class="tr neg">-0.60%</td><td class="tr neg">-0.70%</td></tr>
+        <tr><td class="fw">3 พ.ค.</td><td class="tr">319,327</td><td class="tr">941</td><td class="tr">339.30</td><td class="tr pos">11.70%</td><td class="tr neg">-2.00%</td><td class="tr neg">-0.90%</td><td class="tr neg">-1.10%</td></tr>
+        <tr><td class="fw">4 พ.ค.</td><td class="tr">290,696</td><td class="tr">941</td><td class="tr">308.90</td><td class="tr pos">9.90%</td><td class="tr neg">-2.70%</td><td class="tr neg">-1.70%</td><td class="tr neg">-1.00%</td></tr>
+        <tr><td class="fw">5 พ.ค.</td><td class="tr">285,748</td><td class="tr">876</td><td class="tr">326.20</td><td class="tr pos">11.00%</td><td class="tr neg">-1.90%</td><td class="tr neg">-1.30%</td><td class="tr neg">-0.60%</td></tr>
+        <tr style="background:#f0f9ff;font-weight:700;"><td>รวม (1–5)</td><td class="tr">1,530,899</td><td class="tr">4,684</td><td class="tr">326.44</td><td class="tr pos">10.28%</td><td class="tr neg">-1.44%</td><td class="tr neg">-1.10%</td><td class="tr neg">-0.88%</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ O2O ══════════════ -->
+<div id="p-o2o" class="panel">
+  <div class="ir">
+    <div class="ii"><div class="il">Actual รวม</div><div class="iv">฿67,842</div></div>
+    <div class="ii"><div class="il">Target</div><div class="iv">฿694,388</div></div>
+    <div class="ii"><div class="il">Achievement</div><div class="iv neg">9.77%</div></div>
+    <div class="ii"><div class="il">Run Rate/วัน</div><div class="iv">฿7,538</div></div>
+    <div class="ii"><div class="il">Forecast</div><div class="iv">฿233,678</div></div>
+    <div class="ii"><div class="il">Forecast Diff TG</div><div class="iv neg">-฿460,710</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3>📦 ยอดขาย O2O + Biglot รายวัน (พ.ค. 1–4)</h3>
+      <div class="ch"><canvas id="cO2O"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>📋 รายละเอียด O2O รายวัน</h3>
+      <table>
+        <thead><tr><th>วันที่</th><th class="tr">Sales (฿)</th><th class="tr">TA</th><th class="tr">TC</th></tr></thead>
+        <tbody>
+          <tr><td class="fw">1 พ.ค.</td><td class="tr">13,193</td><td class="tr">47</td><td class="tr">280.7</td></tr>
+          <tr><td class="fw">2 พ.ค.</td><td class="tr">13,050</td><td class="tr">—</td><td class="tr">—</td></tr>
+          <tr><td class="fw">3 พ.ค.</td><td class="tr">10,924</td><td class="tr">—</td><td class="tr">—</td></tr>
+          <tr><td class="fw">4 พ.ค.</td><td class="tr">30,675</td><td class="tr">—</td><td class="tr">—</td></tr>
+          <tr style="background:#fff7ed;font-weight:700;"><td>รวม</td><td class="tr">67,842</td><td class="tr">47</td><td class="tr">280.7</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:16px;padding:14px 16px;background:#fff7ed;border-radius:8px;border-left:3px solid var(--amber);">
+        <div style="font-size:11px;color:var(--amber);font-weight:700;text-transform:uppercase;">Forecast Ach%</div>
+        <div style="font-size:22px;font-weight:700;color:var(--red);margin:4px 0;">33.65%</div>
+        <div style="font-size:12px;color:var(--muted);">Current ach% = 9.77% | Diff TG = -฿626,546</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ KL ══════════════ -->
+<div id="p-kl" class="panel">
+  <div class="ir">
+    <div class="ii"><div class="il">Fresh Food เม.ย.</div><div class="iv">฿4,183,757</div></div>
+    <div class="ii"><div class="il">Fresh Food พ.ค.</div><div class="iv">฿587,586</div></div>
+    <div class="ii"><div class="il">KL% เม.ย.</div><div class="iv neg">-4.38%</div></div>
+    <div class="ii"><div class="il">KL% พ.ค.</div><div class="iv neg">-3.47%</div></div>
+    <div class="ii"><div class="il">Bad% พ.ค.</div><div class="iv neg">-1.92%</div></div>
+    <div class="ii"><div class="il">RTC% พ.ค.</div><div class="iv neg">-1.55%</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3>📉 KL% เปรียบเทียบ เม.ย. vs พ.ค. (แยก Division)</h3>
+      <div class="ch"><canvas id="cKL"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>📋 สรุป %KL, %Bad, %RTC แยก Division</h3>
+      <table>
+        <thead><tr><th>Division</th><th class="tr">KL% เม.ย.</th><th class="tr">KL% พ.ค.</th><th class="tr">Bad% พ.ค.</th><th class="tr">RTC% พ.ค.</th></tr></thead>
+        <tbody>
+          <tr><td>🥬 PRODUCE</td><td class="tr neg">-13.99%</td><td class="tr neg">-9.90%</td><td class="tr neg">-3.91%</td><td class="tr neg">-5.98%</td></tr>
+          <tr><td>🥩 MEAT+SEAFOOD</td><td class="tr neg">-2.52%</td><td class="tr neg">-1.59%</td><td class="tr neg">-1.26%</td><td class="tr neg">-0.33%</td></tr>
+          <tr><td>🥛 DAIRY</td><td class="tr neg">-2.45%</td><td class="tr neg">-6.37%</td><td class="tr neg">-5.33%</td><td class="tr neg">-1.05%</td></tr>
+          <tr><td>🍱 MEAL SOLUTIONS</td><td class="tr neg">-3.52%</td><td class="tr neg">-2.95%</td><td class="tr neg">-2.89%</td><td class="tr neg">-0.06%</td></tr>
+          <tr><td>🥐 BAKERY</td><td class="tr neg">-16.65%</td><td class="tr neg">-19.19%</td><td class="tr neg">-2.08%</td><td class="tr neg">-17.11%</td></tr>
+          <tr><td>🍲 PRECOOKED</td><td class="tr neg">-5.05%</td><td class="tr neg">-3.94%</td><td class="tr neg">-1.79%</td><td class="tr neg">-2.15%</td></tr>
+          <tr><td>❄️ FROZEN</td><td class="tr neg">-0.76%</td><td class="tr neg">-0.24%</td><td class="tr neg">-0.24%</td><td class="tr">0.00%</td></tr>
+          <tr style="background:#fef2f2;font-weight:700;"><td>รวม</td><td class="tr neg">-4.38%</td><td class="tr neg">-3.47%</td><td class="tr neg">-1.92%</td><td class="tr neg">-1.55%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>💰 มูลค่า KL, Bad, RTC (เม.ย. vs พ.ค.) แยก Division</h3>
+    <table>
+      <thead><tr><th>Division</th><th class="tr">Sales เม.ย.</th><th class="tr">KL เม.ย.</th><th class="tr">Sales พ.ค.</th><th class="tr">KL พ.ค.</th><th class="tr">Bad พ.ค.</th><th class="tr">RTC พ.ค.</th></tr></thead>
+      <tbody>
+        <tr><td>🥬 PRODUCE</td><td class="tr">546,878</td><td class="tr neg">(76,488)</td><td class="tr">86,322</td><td class="tr neg">(8,543)</td><td class="tr neg">(3,379)</td><td class="tr neg">(5,163)</td></tr>
+        <tr><td>🥩 MEAT+SEAFOOD</td><td class="tr">2,837,297</td><td class="tr neg">(71,564)</td><td class="tr">383,492</td><td class="tr neg">(6,099)</td><td class="tr neg">(4,843)</td><td class="tr neg">(1,255)</td></tr>
+        <tr><td>🥛 DAIRY</td><td class="tr">208,930</td><td class="tr neg">(5,111)</td><td class="tr">31,740</td><td class="tr neg">(2,023)</td><td class="tr neg">(1,690)</td><td class="tr neg">(333)</td></tr>
+        <tr><td>🍱 MEAL SOLUTIONS</td><td class="tr">79,673</td><td class="tr neg">(2,806)</td><td class="tr">15,406</td><td class="tr neg">(454)</td><td class="tr neg">(445)</td><td class="tr neg">(9)</td></tr>
+        <tr><td>🥐 BAKERY</td><td class="tr">71,305</td><td class="tr neg">(11,876)</td><td class="tr">8,795</td><td class="tr neg">(1,688)</td><td class="tr neg">(183)</td><td class="tr neg">(1,505)</td></tr>
+        <tr><td>🍲 PRECOOKED</td><td class="tr">280,655</td><td class="tr neg">(14,183)</td><td class="tr">38,679</td><td class="tr neg">(1,526)</td><td class="tr neg">(692)</td><td class="tr neg">(834)</td></tr>
+        <tr><td>❄️ FROZEN</td><td class="tr">159,019</td><td class="tr neg">(1,207)</td><td class="tr">23,152</td><td class="tr neg">(56)</td><td class="tr neg">(56)</td><td class="tr">0</td></tr>
+        <tr style="background:#fef2f2;font-weight:700;"><td>รวม</td><td class="tr">4,183,757</td><td class="tr neg">(183,234)</td><td class="tr">587,586</td><td class="tr neg">(20,388)</td><td class="tr neg">(11,289)</td><td class="tr neg">(9,099)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+function sw(name,idx){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  ['b2b','b2c','o2o','kl'].forEach(n=>document.getElementById('p-'+n).classList.toggle('active',n===name));
+}
+
+Chart.defaults.font.family='Segoe UI,Tahoma,sans-serif';
+Chart.defaults.font.size=12;
+
+const fmt=v=>'฿'+v.toLocaleString();
+const fmtM=v=>'฿'+(v/1e6).toFixed(2)+'M';
+
+// ── B2B Channel Chart ──
+new Chart(document.getElementById('cB2B'),{
+  type:'bar',
+  data:{
+    labels:['Makro','Hyper','Supermarket','Mini'],
+    datasets:[
+      {label:'Target',data:[23746845,2179996,1071550,545476],backgroundColor:'rgba(124,58,237,.2)',borderColor:'rgba(124,58,237,.8)',borderWidth:2,borderRadius:4},
+      {label:'Actual',data:[2550352,423449,191781,15608],backgroundColor:'rgba(124,58,237,.8)',borderColor:'rgba(124,58,237,1)',borderWidth:1,borderRadius:4}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},
+    scales:{y:{ticks:{callback:fmtM}}}}
+});
+
+// ── AXTRA Trend ──
+new Chart(document.getElementById('cAXTRA'),{
+  type:'line',
+  data:{
+    labels:['FEB','MAR','APR','MAY (Forecast)'],
+    datasets:[
+      {label:'KPI Target',data:[11153640,12353640,12953640,14753640],borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.1)',fill:true,tension:.3,pointRadius:5},
+      {label:'Actual/Forecast',data:[9119473,10021687,10016066,10957432],borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.1)',fill:true,tension:.3,pointRadius:5}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},
+    scales:{y:{ticks:{callback:fmtM}}}}
+});
+
+// ── B2C Daily Sales ──
+new Chart(document.getElementById('cB2CSales'),{
+  type:'bar',
+  data:{
+    labels:['1 พ.ค.','2 พ.ค.','3 พ.ค.','4 พ.ค.','5 พ.ค.'],
+    datasets:[
+      {label:'Baseline/วัน',data:[1076029,1076029,1076029,1076029,1076029],type:'line',borderColor:'#d97706',borderDash:[5,5],borderWidth:2,pointRadius:0,fill:false},
+      {label:'Actual Sales',data:[312345,322783,319327,290696,285748],backgroundColor:['#0891b2','#0891b2','#0891b2','#dc2626','#dc2626'],borderRadius:4}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},
+    scales:{y:{ticks:{callback:v=>'฿'+v.toLocaleString()}}}}
+});
+
+// ── B2C TC ──
+new Chart(document.getElementById('cB2CTC'),{
+  type:'line',
+  data:{
+    labels:['1 พ.ค.','2 พ.ค.','3 พ.ค.','4 พ.ค.','5 พ.ค.'],
+    datasets:[{label:'Transaction Count',data:[926,1000,941,941,876],borderColor:'#0891b2',backgroundColor:'rgba(8,145,178,.1)',fill:true,tension:.3,pointRadius:6,pointBackgroundColor:'#0891b2'}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>'TC: '+c.raw+' ครั้ง'}}}}
+});
+
+// ── O2O ──
+new Chart(document.getElementById('cO2O'),{
+  type:'bar',
+  data:{
+    labels:['1 พ.ค.','2 พ.ค.','3 พ.ค.','4 พ.ค.'],
+    datasets:[{label:'O2O Sales',data:[13193,13050,10924,30675],backgroundColor:['#d97706','#d97706','#d97706','#16a34a'],borderRadius:4}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>'Sales: '+fmt(c.raw)}}},
+    scales:{y:{ticks:{callback:v=>'฿'+v.toLocaleString()}}}}
+});
+
+// ── KL Chart ──
+new Chart(document.getElementById('cKL'),{
+  type:'bar',
+  data:{
+    labels:['PRODUCE','MEAT+\nSEAFOOD','DAIRY','MEAL SOL.','BAKERY','PRECOOKED','FROZEN'],
+    datasets:[
+      {label:'KL% เม.ย.',data:[-13.99,-2.52,-2.45,-3.52,-16.65,-5.05,-0.76],backgroundColor:'rgba(220,38,38,.35)',borderColor:'#dc2626',borderWidth:1,borderRadius:2},
+      {label:'KL% พ.ค.',data:[-9.90,-1.59,-6.37,-2.95,-19.19,-3.94,-0.24],backgroundColor:'rgba(220,38,38,.75)',borderColor:'#dc2626',borderWidth:1,borderRadius:2}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}},
+    scales:{y:{ticks:{callback:v=>v+'%'}}}}
+});
+</script>
+</body>
+</html>

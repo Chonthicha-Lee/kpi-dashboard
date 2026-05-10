@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2C Dashboard — Lotus's Go Fresh FLP19</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+:root{
+  --cyan:#0891b2; --cyan-dark:#0e7490; --cyan-light:#e0f2fe;
+  --green:#16a34a; --red:#dc2626; --amber:#d97706; --purple:#7c3aed;
+  --bg:#f0f9ff; --card:#fff; --text:#0c4a6e; --muted:#64748b; --border:#bae6fd;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--text);}
+
+/* Header */
+.hdr{background:linear-gradient(135deg,#0c4a6e,#0891b2,#06b6d4);color:#fff;padding:20px 32px;display:flex;justify-content:space-between;align-items:center;}
+.hdr h1{font-size:22px;font-weight:700;}
+.hdr .sub{font-size:13px;opacity:.8;margin-top:3px;}
+.hdr .badge{background:rgba(255,255,255,.2);padding:8px 16px;border-radius:20px;font-size:12px;text-align:right;}
+
+/* Layout */
+.wrap{padding:24px 32px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
+
+/* KPI Cards */
+.kc{background:var(--card);border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(8,145,178,.12);border-top:4px solid var(--cyan);}
+.kc.green{border-top-color:var(--green);}
+.kc.red{border-top-color:var(--red);}
+.kc.amber{border-top-color:var(--amber);}
+.kc.purple{border-top-color:var(--purple);}
+.kc .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.kc .val{font-size:22px;font-weight:700;margin:5px 0 2px;color:var(--text);}
+.kc .sub2{font-size:12px;color:var(--muted);}
+.kc .ach{font-size:13px;font-weight:700;margin-top:3px;}
+.bar{height:6px;background:#e0f2fe;border-radius:3px;margin-top:10px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+
+/* Section title */
+.sec-title{font-size:15px;font-weight:700;color:var(--cyan-dark);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:6px;}
+
+/* Cards */
+.card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(8,145,178,.1);margin-bottom:16px;}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#f0f9ff;padding:9px 12px;text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border);}
+td{padding:9px 12px;border-bottom:1px solid #f0f9ff;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f0f9ff;}
+.tr{text-align:right;} .tc{text-align:center;}
+.fw{font-weight:600;}
+.pos{color:var(--green);font-weight:600;}
+.neg{color:var(--red);font-weight:600;}
+.neu{color:var(--amber);font-weight:600;}
+
+/* Badges */
+.bdg{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.bdg-red{background:#fee2e2;color:#dc2626;}
+.bdg-amber{background:#fef3c7;color:#d97706;}
+.bdg-green{background:#dcfce7;color:#16a34a;}
+.bdg-blue{background:#dbeafe;color:#1d4ed8;}
+
+/* Info row */
+.ir{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+.ii{background:#f0f9ff;border:1px solid var(--border);border-radius:8px;padding:12px 16px;flex:1;min-width:120px;}
+.ii .il{font-size:10px;color:var(--muted);text-transform:uppercase;}
+.ii .iv{font-size:18px;font-weight:700;margin-top:3px;color:var(--text);}
+
+/* Chart */
+.ch{position:relative;height:260px;}
+.ch-sm{position:relative;height:200px;}
+
+/* Month row in table */
+.month-row-good td{background:#f0fdf4 !important;}
+.month-row-warn td{background:#fffbeb !important;}
+.month-row-bad td{background:#fef2f2 !important;}
+.month-row-future td{background:#f8fafc !important;color:#94a3b8;}
+
+/* Alert box */
+.alert{padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;display:flex;align-items:center;gap:8px;}
+.alert-blue{background:#dbeafe;border-left:4px solid #3b82f6;color:#1e40af;}
+.alert-amber{background:#fef3c7;border-left:4px solid var(--amber);color:#92400e;}
+
+/* Progress channel */
+.ch-row{padding:10px 0;border-bottom:1px solid #f0f9ff;}
+.ch-row:last-child{border-bottom:none;}
+.ch-top{display:flex;justify-content:space-between;margin-bottom:5px;}
+.ch-name{font-weight:600;font-size:13px;}
+.ch-detail{font-size:11px;color:var(--muted);}
+
+/* Divider */
+.divider{height:1px;background:var(--border);margin:20px 0;}
+
+/* Day dot */
+.day-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;}
+.dot-good{background:var(--green);}
+.dot-bad{background:var(--red);}
+
+@media(max-width:768px){
+  .g4{grid-template-columns:repeat(2,1fr);}
+  .g2,.g21{grid-template-columns:1fr;}
+  .wrap{padding:16px;}
+}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:18px;width:min(800px,94vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.28);}
+.modal-hdr{background:linear-gradient(135deg,#0c4a6e,#0891b2);color:#fff;padding:18px 24px;border-radius:18px 18px 0 0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1;}
+.modal-hdr h2{font-size:16px;font-weight:700;}
+.modal-hdr .sub{font-size:12px;opacity:.75;margin-top:2px;}
+.modal-close{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:16px;width:32px;height:32px;border-radius:50%;cursor:pointer;}
+.modal-close:hover{background:rgba(255,255,255,.32);}
+/* Project cards */
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px;}
+@media(max-width:560px){.proj-grid{grid-template-columns:1fr;}}
+.proj-card{background:#fff;border:1.5px solid #e0f2fe;border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.proj-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;}
+.pc1::before{background:#f59e0b;} .pc2::before{background:#8b5cf6;}
+.pc3::before{background:#10b981;} .pc4::before{background:#f97316;}
+.pc5::before{background:#06b6d4;} .pc6::before{background:#ec4899;}
+.proj-card:hover{box-shadow:0 6px 20px rgba(8,145,178,.18);transform:translateY(-2px);}
+.proj-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;margin-bottom:8px;}
+.tag-promo{background:#fef3c7;color:#92400e;} .tag-display{background:#ede9fe;color:#5b21b6;}
+.tag-event{background:#d1fae5;color:#065f46;} .tag-season{background:#ffedd5;color:#9a3412;}
+.tag-food{background:#dcfce7;color:#15803d;} .tag-cust{background:#fce7f3;color:#9d174d;}
+.proj-title{font-size:13px;font-weight:700;color:#0c4a6e;margin-bottom:5px;line-height:1.4;}
+.proj-desc{font-size:12px;color:#64748b;line-height:1.55;}
+.proj-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.proj-status{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.st-active{background:#dcfce7;color:#166534;} .st-plan{background:#fef9c3;color:#854d0e;}
+/* Detail view */
+.proj-detail{display:none;}
+.detail-hdr{background:linear-gradient(135deg,#0c4a6e,#0891b2,#06b6d4);color:#fff;padding:20px 24px 24px;}
+.detail-back{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:12px;padding:5px 14px;border-radius:20px;cursor:pointer;margin-bottom:12px;display:inline-flex;align-items:center;gap:5px;}
+.detail-back:hover{background:rgba(255,255,255,.3);}
+.detail-title{font-size:19px;font-weight:800;margin-bottom:8px;line-height:1.3;}
+.detail-badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.detail-body{padding:18px 24px 24px;background:#f8fafc;}
+.d-sec{background:#fff;border-radius:12px;padding:15px 18px;margin-bottom:12px;border:1px solid #e2e8f0;}
+.d-sec-title{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.d-item label{display:block;font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:3px;}
+.d-item .dv{font-size:14px;font-weight:600;color:#0c4a6e;}
+.d-ph{color:#cbd5e1;font-style:italic;}
+.task-list{list-style:none;padding:0;}
+.task-list li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px;color:#334155;}
+.task-list li:last-child{border-bottom:none;}
+.task-check{width:18px;height:18px;border:2px solid #cbd5e1;border-radius:4px;flex-shrink:0;margin-top:1px;}
+.kpi3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.kpi-chip{background:#f0f9ff;border-radius:10px;padding:12px;text-align:center;}
+.kpi-chip .kc-label{font-size:11px;color:#64748b;margin-bottom:4px;}
+.kpi-chip .kc-val{font-size:16px;font-weight:800;color:#0891b2;}
+.note-box{background:#fafafa;border:1.5px dashed #cbd5e1;border-radius:8px;padding:12px;font-size:13px;color:#94a3b8;font-style:italic;min-height:56px;}
+.prog-wrap{background:#e0f2fe;border-radius:20px;height:7px;flex:1;}
+.prog-fill{background:linear-gradient(90deg,#0891b2,#06b6d4);border-radius:20px;height:7px;}
+/* Open button */
+.proj-btn{background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff;border:none;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.proj-btn:hover{opacity:.88;}
+/* Mechanic box */
+.mech-box{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:2px solid #fde68a;border-radius:14px;padding:16px 18px;}
+.mech-period{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:8px 14px;font-size:13px;color:#c2410c;font-weight:700;text-align:center;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.mech-rule{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:10px;padding:10px 14px;text-align:center;font-size:15px;font-weight:800;margin:10px 0;letter-spacing:.2px;box-shadow:0 3px 10px rgba(245,158,11,.35);}
+.mech-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:13px;color:#78350f;line-height:1.6;}
+.mech-row:last-child{margin-bottom:0;}
+.mech-note{background:#fff;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:8px 12px;font-size:12px;color:#92400e;margin-top:10px;line-height:1.5;}
+/* Detail charts */
+.dchart-wrap{height:155px;}
+/* KFC theme */
+.pc-kfc::before{background:#c8102e;}
+.pc-kfc:hover{box-shadow:0 6px 20px rgba(200,16,46,.2);}
+.mech-kfc{background:linear-gradient(135deg,#fff1f2,#ffe4e6);border:2px solid #fca5a5;border-radius:14px;padding:16px 18px;margin-bottom:10px;}
+.mech-kfc .mech-period{background:#fff;border-color:#fca5a5;color:#b91c1c;}
+.mech-kfc .mech-rule{background:linear-gradient(135deg,#c8102e,#991b1b);box-shadow:0 3px 10px rgba(200,16,46,.35);}
+.mech-kfc .mech-row{color:#7f1d1d;}
+.mech-kfc .mech-note{border-left-color:#c8102e;color:#991b1b;}
+.act-title{font-size:13px;font-weight:800;color:#0c4a6e;padding:7px 12px;background:#f0f9ff;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.cta-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px;color:#334155;line-height:1.5;}
+.cta-item:last-child{border-bottom:none;}
+/* B2S theme */
+.mech-b2s{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #93c5fd;border-radius:14px;padding:16px 18px;margin-bottom:10px;}
+.mech-b2s .mech-period{background:#fff;border-color:#93c5fd;color:#1d4ed8;}
+.mech-b2s .mech-rule{background:linear-gradient(135deg,#1d4ed8,#2563eb);box-shadow:0 3px 10px rgba(29,78,216,.3);}
+.mech-b2s .mech-row{color:#1e3a8a;}
+.mech-b2s .mech-note{border-left-color:#3b82f6;color:#1d4ed8;}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="hdr">
+  <div>
+    <h1>🛒 B2C Dashboard — Lotus's Go Fresh</h1>
+    <div class="sub">FLP19 Damnoensaduak | ทีมมะปราง เจ้าขา | ข้อมูล ณ 9 พ.ค. 2026</div>
+  </div>
+  <div class="badge">
+    📅 เดือน พ.ค. 2026<br>ผ่านมา 9 วัน | เหลือ 22 วัน
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ══ Project Button ══ -->
+<div style="margin-bottom:14px;display:flex;justify-content:flex-end;">
+  <button class="proj-btn" onclick="document.getElementById('projModal').classList.add('open')">
+    📋 ดูโปรเจค พ.ค. 2026
+  </button>
+</div>
+
+<!-- ══ Alert ══ -->
+<div class="alert alert-amber">
+  ⚠️ <strong>พ.ค. ยอดสะสม 2,691,853 บาท</strong> — ต้องทำ 9,248,900 บาทให้ได้ใน 22 วันที่เหลือ (เฉลี่ยวันละ <strong>420,405 บาท</strong>)
+</div>
+
+<!-- ══ KPI Cards ══ -->
+<div class="g4">
+  <div class="kc">
+    <div class="lbl">🎯 Target พ.ค.</div>
+    <div class="val">฿11.94M</div>
+    <div class="sub2">Baseline LY: ฿9.95M</div>
+    <div class="ach" style="color:var(--cyan)">+20.0% vs LY</div>
+    <div class="bar"><div class="bar-fill" style="width:100%;background:var(--cyan);"></div></div>
+  </div>
+  <div class="kc red">
+    <div class="lbl">📊 Actual พ.ค. (10 วัน)</div>
+    <div class="val">฿2.69M</div>
+    <div class="sub2">Target: ฿11.94M</div>
+    <div class="ach neg">22.54% Achievement</div>
+    <div class="bar"><div class="bar-fill" style="width:22.54%;background:var(--red);"></div></div>
+  </div>
+  <div class="kc amber">
+    <div class="lbl">🗓️ YTD (ก.พ.–เม.ย.)</div>
+    <div class="val">฿27.91M</div>
+    <div class="sub2">Target: ฿35.86M</div>
+    <div class="ach neg">77.9% Achievement</div>
+    <div class="bar"><div class="bar-fill" style="width:77.9%;background:var(--amber);"></div></div>
+  </div>
+  <div class="kc green">
+    <div class="lbl">⚡ Required/วัน (เหลือ)</div>
+    <div class="val">฿420,405</div>
+    <div class="sub2">Run Rate ปัจจุบัน: ฿299,095</div>
+    <div class="ach neg">ช่องว่าง -฿121,310/วัน</div>
+    <div class="bar"><div class="bar-fill" style="width:71.1%;background:var(--green);"></div></div>
+  </div>
+</div>
+
+<!-- ══ Monthly Performance ══ -->
+<div class="sec-title">📅 ผลงาน B2C รายเดือน (ก.พ.–ก.ค. 2026)</div>
+
+<div class="card">
+  <div class="ch"><canvas id="cMonthly"></canvas></div>
+</div>
+
+<!-- Monthly Table -->
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>เดือน</th>
+        <th class="tr">Target (฿)</th>
+        <th class="tr">LY Actual (฿)</th>
+        <th class="tr">TY Actual (฿)</th>
+        <th class="tc">vs Target</th>
+        <th class="tc">vs LY</th>
+        <th class="tc">สถานะ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="month-row-warn">
+        <td class="fw">กุมภาพันธ์</td>
+        <td class="tr">11,952,959</td>
+        <td class="tr">8,471,550</td>
+        <td class="tr fw">9,052,463</td>
+        <td class="tc neg">75.7%</td>
+        <td class="tc pos">+6.9%</td>
+        <td class="tc"><span class="bdg bdg-amber">ต่ำกว่า TG</span></td>
+      </tr>
+      <tr class="month-row-warn">
+        <td class="fw">มีนาคม</td>
+        <td class="tr">11,940,753</td>
+        <td class="tr">10,041,239</td>
+        <td class="tr fw">9,577,164</td>
+        <td class="tc neg">80.2%</td>
+        <td class="tc neg">-4.6%</td>
+        <td class="tc"><span class="bdg bdg-amber">ต่ำกว่า TG</span></td>
+      </tr>
+      <tr class="month-row-bad">
+        <td class="fw">เมษายน</td>
+        <td class="tr">11,952,959</td>
+        <td class="tr">10,349,565</td>
+        <td class="tr fw">9,282,003</td>
+        <td class="tc neg">77.7%</td>
+        <td class="tc neg">-10.3%</td>
+        <td class="tc"><span class="bdg bdg-red">ต่ำกว่า LY</span></td>
+      </tr>
+      <tr class="month-row-bad">
+        <td class="fw">พฤษภาคม ⬅</td>
+        <td class="tr">11,940,753</td>
+        <td class="tr">10,468,604</td>
+        <td class="tr fw" style="color:var(--amber)">2,691,853 *</td>
+        <td class="tc neg">22.5%</td>
+        <td class="tc" style="color:var(--muted)">กำลังติดตาม</td>
+        <td class="tc"><span class="bdg bdg-amber">กำลังดำเนินการ</span></td>
+      </tr>
+      <tr class="month-row-future">
+        <td class="fw">มิถุนายน</td>
+        <td class="tr">11,952,959</td>
+        <td class="tr">9,353,342</td>
+        <td class="tr" style="color:#94a3b8">—</td>
+        <td class="tc" style="color:#94a3b8">—</td>
+        <td class="tc" style="color:#94a3b8">—</td>
+        <td class="tc"><span class="bdg" style="background:#f1f5f9;color:#94a3b8;">ยังไม่ถึง</span></td>
+      </tr>
+      <tr class="month-row-future">
+        <td class="fw">กรกฎาคม</td>
+        <td class="tr">11,952,959</td>
+        <td class="tr">9,677,379</td>
+        <td class="tr" style="color:#94a3b8">—</td>
+        <td class="tc" style="color:#94a3b8">—</td>
+        <td class="tc" style="color:#94a3b8">—</td>
+        <td class="tc"><span class="bdg" style="background:#f1f5f9;color:#94a3b8;">ยังไม่ถึง</span></td>
+      </tr>
+      <tr style="background:#e0f2fe;font-weight:700;">
+        <td>รวม YTD (ก.พ.–เม.ย.)</td>
+        <td class="tr">35,846,671</td>
+        <td class="tr">28,862,354</td>
+        <td class="tr">27,911,630</td>
+        <td class="tc neg">77.9%</td>
+        <td class="tc neg">-3.3%</td>
+        <td class="tc"><span class="bdg bdg-amber">ต้องเร่ง</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="font-size:11px;color:var(--muted);margin-top:8px;">* ข้อมูล พ.ค. สะสม 9 วัน (1–9 พ.ค. 2026)</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ May Daily Tracking ══ -->
+<div class="sec-title">📆 ติดตามยอดขาย B2C รายวัน — พฤษภาคม 2026</div>
+
+<div class="ir">
+  <div class="ii"><div class="il">วันที่มีข้อมูล</div><div class="iv">9 วัน</div></div>
+  <div class="ii"><div class="il">ยอดรวม 9 วัน</div><div class="iv">฿2,691,853</div></div>
+  <div class="ii"><div class="il">เฉลี่ย/วัน (จริง)</div><div class="iv">฿299,095</div></div>
+  <div class="ii"><div class="il">Baseline LY/วัน</div><div class="iv">฿320,988</div></div>
+  <div class="ii"><div class="il">ช่องว่าง vs Baseline</div><div class="iv neg">-฿21,893</div></div>
+  <div class="ii"><div class="il">TC เฉลี่ย/วัน</div><div class="iv">937 ครั้ง</div></div>
+</div>
+
+<div class="card">
+  <div class="sec-title" style="font-size:13px;margin-bottom:4px;">📈 Scan Margin% เฉลี่ยต่อเดือน</div>
+  <div class="ch"><canvas id="cMargin"></canvas></div>
+</div>
+<div class="g2">
+  <div class="card">
+    <div class="sec-title" style="font-size:13px;margin-bottom:4px;">🧾 TC เฉลี่ยต่อเดือน (ครั้ง/วัน)</div>
+    <div class="ch"><canvas id="cTC"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="sec-title" style="font-size:13px;margin-bottom:4px;">🛒 TA เฉลี่ยต่อเดือน (฿/ตะกร้า)</div>
+    <div class="ch"><canvas id="cTA"></canvas></div>
+  </div>
+</div>
+
+<!-- Daily detail table -->
+<div class="card">
+  <div class="sec-title" style="font-size:13px;margin-bottom:10px;">📋 รายละเอียดรายวัน พ.ค. 1–5</div>
+  <table>
+    <thead>
+      <tr>
+        <th>วันที่</th>
+        <th class="tr">Sales (฿)</th>
+        <th class="tr">vs Baseline</th>
+        <th class="tr">TC (ครั้ง)</th>
+        <th class="tr">TA (฿/ครั้ง)</th>
+        <th class="tr">Scan Margin%</th>
+        <th class="tr">%KL</th>
+        <th class="tr">%Bad</th>
+        <th class="tr">%RTC</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="day-dot dot-bad"></span><b>1 พ.ค.</b> (พฤ)</td>
+        <td class="tr">312,345</td>
+        <td class="tr neg">-71.0%</td>
+        <td class="tr">926</td>
+        <td class="tr">337.30</td>
+        <td class="tr pos">9.30%</td>
+        <td class="tr neg">-2.00%</td>
+        <td class="tr neg">-1.00%</td>
+        <td class="tr neg">-1.00%</td>
+      </tr>
+      <tr>
+        <td><span class="day-dot dot-bad"></span><b>2 พ.ค.</b> (ศ)</td>
+        <td class="tr">322,783</td>
+        <td class="tr neg">-70.0%</td>
+        <td class="tr">1,000</td>
+        <td class="tr">320.50</td>
+        <td class="tr pos">9.50%</td>
+        <td class="tr pos">+1.40%</td>
+        <td class="tr neg">-0.60%</td>
+        <td class="tr neg">-0.70%</td>
+      </tr>
+      <tr>
+        <td><span class="day-dot dot-bad"></span><b>3 พ.ค.</b> (ส)</td>
+        <td class="tr">319,327</td>
+        <td class="tr neg">-70.3%</td>
+        <td class="tr">941</td>
+        <td class="tr">339.30</td>
+        <td class="tr pos">11.70%</td>
+        <td class="tr neg">-2.00%</td>
+        <td class="tr neg">-0.90%</td>
+        <td class="tr neg">-1.10%</td>
+      </tr>
+      <tr>
+        <td><span class="day-dot dot-bad"></span><b>4 พ.ค.</b> (อา)</td>
+        <td class="tr">290,696</td>
+        <td class="tr neg">-73.0%</td>
+        <td class="tr">941</td>
+        <td class="tr">308.90</td>
+        <td class="tr pos">9.90%</td>
+        <td class="tr neg">-2.70%</td>
+        <td class="tr neg">-1.70%</td>
+        <td class="tr neg">-1.00%</td>
+      </tr>
+      <tr>
+        <td><span class="day-dot dot-bad"></span><b>5 พ.ค.</b> (จ)</td>
+        <td class="tr">285,748</td>
+        <td class="tr neg">-73.4%</td>
+        <td class="tr">876</td>
+        <td class="tr">326.20</td>
+        <td class="tr pos">11.00%</td>
+        <td class="tr neg">-1.90%</td>
+        <td class="tr neg">-1.30%</td>
+        <td class="tr neg">-0.60%</td>
+      </tr>
+      <tr style="background:#e0f2fe;font-weight:700;">
+        <td>เฉลี่ย/รวม</td>
+        <td class="tr">306,180</td>
+        <td class="tr neg">-71.5%</td>
+        <td class="tr">937</td>
+        <td class="tr">326.44</td>
+        <td class="tr pos">10.28%</td>
+        <td class="tr neg">-1.44%</td>
+        <td class="tr neg">-1.10%</td>
+        <td class="tr neg">-0.88%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ Analysis ══ -->
+<div class="sec-title">🔍 การวิเคราะห์เชิงลึก</div>
+
+<!-- Metric Analysis Cards -->
+<div class="g3">
+  <div class="card" style="border-top:3px solid var(--red);">
+    <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px;">📉 ยอดขาย — ต่ำกว่า Baseline วิกฤต</div>
+    <p style="font-size:12px;color:var(--muted);line-height:1.7;">
+      ยอดเฉลี่ย <b>299,095 ฿/วัน</b> คิดเป็น <b style="color:var(--red);">93.2%</b> ของ Baseline LY/วัน (320,988 ฿)<br><br>
+      ยอดลดต่อเนื่องทุกวัน: วันที่ 1 (312K) → วันที่ 5 (286K) <b style="color:var(--red);">ลด -8.5%</b> ภายใน 5 วัน<br><br>
+      เทียบกับ เม.ย. เฉลี่ยทั้งเดือน <b>309,400 ฿/วัน</b> — พ.ค. ต่ำกว่าเล็กน้อย ต้องเร่งให้ถึง 420,405 ฿/วัน
+    </p>
+  </div>
+  <div class="card" style="border-top:3px solid var(--amber);">
+    <div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:10px;">🛒 TA — มูลค่าต่อตะกร้าลดลง</div>
+    <p style="font-size:12px;color:var(--muted);line-height:1.7;">
+      TA พ.ค. เฉลี่ย <b>326 ฿</b> ต่ำกว่า มี.ค. (<b>344 ฿</b>) และ เม.ย. (<b>348 ฿</b>) อย่างชัดเจน<br><br>
+      ลูกค้าจ่ายน้อยลงต่อครั้ง แต่ยังมาซื้อสม่ำเสมอ → โอกาสเพิ่ม <b>Upsell / Cross-sell</b><br><br>
+      หากเพิ่ม TA ได้ <b>+50 ฿/ครั้ง</b> × 937 TC/วัน = <b style="color:var(--green);">+46,850 ฿/วัน</b>
+    </p>
+  </div>
+  <div class="card" style="border-top:3px solid var(--cyan);">
+    <div style="font-size:13px;font-weight:700;color:var(--cyan-dark);margin-bottom:10px;">🧾 TC — จำนวนลูกค้ายังทรงตัว</div>
+    <p style="font-size:12px;color:var(--muted);line-height:1.7;">
+      TC พ.ค. เฉลี่ย <b>937 ครั้ง/วัน</b> (5 วันแรก) ใกล้เคียงกับ ก.พ.–เม.ย. ที่ avg <b>~917 ครั้ง</b> (ก.พ. 945 | มี.ค. 889 | เม.ย. 918)<br><br>
+      แสดงว่า <b>Traffic ลูกค้าไม่ได้ลด</b> — ปัญหาหลักอยู่ที่ลูกค้าซื้อน้อยลง (TA ต่ำ)<br><br>
+      วันที่ TC สูงสุด = วันที่ 2 (1,000 ครั้ง) → <b>วันศุกร์มี Potential สูง</b>
+    </p>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="card" style="border-top:3px solid var(--purple);">
+    <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:10px;">📊 Scan Margin% — ยังอยู่ในเกณฑ์ดี</div>
+    <p style="font-size:12px;color:var(--muted);line-height:1.7;">
+      Margin% พ.ค. เฉลี่ย <b style="color:var(--green);">10.79%</b> ใกล้เคียงกับ เม.ย. (10.94%) และ มี.ค. (10.91%)<br><br>
+      ดีที่สุดวันเสาร์ที่ 3 (11.7%) — <b>สินค้า Fresh มีส่วนช่วย Margin</b><br><br>
+      ⚠️ ก.พ. มี Margin ต่ำสุดที่ 10.26% — ควรรักษา Margin% ให้สม่ำเสมอในช่วงที่เหลือของพ.ค.
+    </p>
+  </div>
+  <div class="card" style="border-top:3px solid var(--red);">
+    <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px;">⚠️ KL / Bad / RTC — ต้องควบคุมอย่างต่อเนื่อง</div>
+    <p style="font-size:12px;color:var(--muted);line-height:1.7;">
+      %KL เฉลี่ย <b>-1.44%</b> | %Bad <b>-1.10%</b> | %RTC <b>-0.88%</b><br><br>
+      วันที่ 4 พ.ค. มี %Bad สูงสุด (-1.70%) — สินค้าเสียหายมาก อาจเกิดจาก <b>Fresh Food หมดอายุ</b><br><br>
+      จาก KL Sheet: BAKERY มี RTC% สูงสุด (-17 ถึง -19%) → <b>ลดการสั่งหรือเพิ่มการ Mark Down</b>
+    </p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ Recommendations ══ -->
+<div class="sec-title">💡 ข้อเสนอแนะ — เพิ่มยอดขาย 21 วันที่เหลือ</div>
+
+<div class="g3">
+  <div class="card" style="border-left:4px solid var(--red);">
+    <div style="font-size:12px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">🔥 เร่งด่วน (ทำทันที)</div>
+    <div style="font-size:13px;line-height:2;">
+      <div>📣 <b>จัดโปรโมชั่นสินค้า Anchor</b> เพื่อดึงลูกค้าให้ซื้อเพิ่ม เช่น Buy 2 Get 1 หรือ Bundling</div>
+      <div>🛒 <b>เพิ่ม TA</b> โดย Cross-sell สินค้าที่ margin ดี เช่น Dairy, Meal Solutions</div>
+      <div>📅 <b>วางแผนโปร Weekend</b> เน้นวันเสาร์–อาทิตย์ที่เหลือ (เสาร์ 3 พ.ค. Margin 11.7%)</div>
+      <div>📦 <b>ลด %Bad / %RTC</b> โดย Mark Down สินค้าใกล้หมดอายุก่อน 16.00 น.</div>
+    </div>
+  </div>
+  <div class="card" style="border-left:4px solid var(--amber);">
+    <div style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">📈 ระยะกลาง (สัปดาห์นี้)</div>
+    <div style="font-size:13px;line-height:2;">
+      <div>🥗 <b>ชูสินค้า Fresh Food</b> เป็น Traffic Driver ดึงลูกค้าเข้าร้าน</div>
+      <div>🏷️ <b>เพิ่ม Visibility สินค้า Margin สูง</b> วางหน้าร้านหรือ End-Cap</div>
+      <div>👥 <b>พนักงานแนะนำสินค้า</b> (Suggestive Selling) เพื่อเพิ่ม TC และ TA พร้อมกัน</div>
+      <div>📲 <b>Push Notification</b> ผ่าน Lotus's App ในพื้นที่ดำเนินสะดวก</div>
+    </div>
+  </div>
+  <div class="card" style="border-left:4px solid var(--green);">
+    <div style="font-size:12px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">🎯 เป้าหมายที่ควรทำได้</div>
+    <div style="font-size:13px;line-height:2;">
+      <div>📊 <b>เพิ่ม TA จาก 326 → 370 ฿</b> (+44 ฿) = <b style="color:var(--green);">+41,000 ฿/วัน</b></div>
+      <div>👣 <b>รักษา TC ≥ 950 ครั้ง/วัน</b> (ปัจจุบัน avg 937)</div>
+      <div>📈 <b>Target 420,405 ฿/วัน</b> ใน 22 วัน = ยอดรวมสะสมสิ้นเดือน ~฿11.93M</div>
+      <div>🥐 <b>BAKERY: ลด RTC% ให้ต่ำกว่า -10%</b> จาก -17% ปัจจุบัน</div>
+    </div>
+  </div>
+</div>
+
+<!-- Gap calculator -->
+<div class="card" style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);">
+  <div class="sec-title" style="font-size:13px;margin-bottom:12px;">🧮 เป้าหมายที่ต้องทำให้ได้ — 22 วันที่เหลือ</div>
+  <div class="ir" style="margin-bottom:0;">
+    <div class="ii" style="background:white;">
+      <div class="il">ยอดที่ต้องได้ใน 22 วัน</div>
+      <div class="iv neg">฿9,248,900</div>
+    </div>
+    <div class="ii" style="background:white;">
+      <div class="il">Required/วัน (เพื่อถึง Target)</div>
+      <div class="iv neg">฿420,405</div>
+    </div>
+    <div class="ii" style="background:white;">
+      <div class="il">ถ้าทำได้ 400K/วัน → ยอดสะสมสิ้นเดือน</div>
+      <div class="iv" style="color:var(--amber);">฿11,491,853</div>
+    </div>
+    <div class="ii" style="background:white;">
+      <div class="il">ถ้าทำได้ 420K/วัน → ยอดสะสมสิ้นเดือน</div>
+      <div class="iv pos">฿11,931,853</div>
+    </div>
+    <div class="ii" style="background:white;">
+      <div class="il">ช่องว่าง Run Rate vs Required</div>
+      <div class="iv neg">-฿121,310/วัน</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+Chart.defaults.font.family='Segoe UI,Tahoma,sans-serif';
+Chart.defaults.font.size=11;
+
+const fmt=v=>'฿'+Math.round(v).toLocaleString();
+const fmtM=v=>'฿'+(v/1e6).toFixed(2)+'M';
+
+// ── Monthly B2C Performance ──
+new Chart(document.getElementById('cMonthly'),{
+  type:'bar',
+  data:{
+    labels:['ก.พ.','มี.ค.','เม.ย.','พ.ค.*','มิ.ย.','ก.ค.'],
+    datasets:[
+      {label:'Target',data:[11952959,11940753,11952959,11940753,11952959,11952959],type:'line',borderColor:'#0891b2',borderWidth:2,borderDash:[6,3],pointRadius:4,fill:false,backgroundColor:'transparent'},
+      {label:'LY Actual',data:[8471550,10041239,10349565,10468604,9353342,9677379],backgroundColor:'rgba(148,163,184,.4)',borderRadius:4,borderWidth:0},
+      {label:'TY Actual',data:[9052463,9577164,9282003,2691853,null,null],backgroundColor:['#0891b2','#0891b2','#dc2626','#d97706',null,null],borderRadius:4,borderWidth:0}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},
+    scales:{y:{ticks:{callback:fmtM}}}}
+});
+
+// ── Metrics เฉลี่ยต่อเดือน ──
+const mthLabels = ['ก.พ.','มี.ค.','เม.ย.','พ.ค.*'];
+const mthColors = ['rgba(148,163,184,.85)','rgba(245,158,11,.85)','rgba(139,92,246,.85)','rgba(8,145,178,.95)'];
+const mthBorder = ['#94a3b8','#f59e0b','#8b5cf6','#0891b2'];
+const barOpt = (suffix) => ({
+  responsive:true, maintainAspectRatio:false,
+  plugins:{
+    legend:{display:false},
+    tooltip:{callbacks:{label:c=>c.raw+suffix}}
+  },
+  scales:{
+    y:{ticks:{callback:v=>v+suffix}, grid:{color:'rgba(0,0,0,.06)'}},
+    x:{grid:{display:false}}
+  }
+});
+
+const lineOpt2 = (suffix) => ({
+  responsive:true, maintainAspectRatio:false,
+  plugins:{
+    legend:{display:false},
+    tooltip:{callbacks:{label:c=>c.raw+suffix}}
+  },
+  scales:{
+    y:{ticks:{callback:v=>v+suffix}, grid:{color:'rgba(0,0,0,.06)'}},
+    x:{grid:{display:false}}
+  }
+});
+
+new Chart(document.getElementById('cMargin'),{
+  type:'line',
+  plugins:[ChartDataLabels],
+  data:{
+    labels:mthLabels,
+    datasets:[{
+      label:'Scan Margin% เฉลี่ย',
+      data:[10.26,10.91,10.94,10.79],
+      borderColor:'#0891b2',
+      backgroundColor:'rgba(8,145,178,.1)',
+      pointBackgroundColor:mthBorder,
+      pointRadius:8, pointHoverRadius:10,
+      fill:true, tension:.3, borderWidth:2.5
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{enabled:false},
+      datalabels:{
+        anchor:'top', align:'top', offset:6,
+        color:'#0e7490', fontStyle:'bold',
+        font:{weight:'bold', size:12},
+        formatter:v=>v+'%'
+      }
+    },
+    scales:{
+      y:{display:false},
+      x:{ticks:{display:false}, grid:{display:false}, border:{display:false}}
+    }
+  }
+});
+
+new Chart(document.getElementById('cTC'),{
+  type:'line',
+  data:{
+    labels:mthLabels,
+    datasets:[{
+      label:'TC เฉลี่ย/วัน',
+      data:[945,889,918,937],
+      borderColor:'#0891b2',
+      backgroundColor:'rgba(8,145,178,.1)',
+      pointBackgroundColor:mthBorder,
+      pointRadius:7, pointHoverRadius:9,
+      fill:true, tension:.3, borderWidth:2.5
+    }]
+  },
+  options:lineOpt2(' ครั้ง')
+});
+
+new Chart(document.getElementById('cTA'),{
+  type:'line',
+  data:{
+    labels:mthLabels,
+    datasets:[{
+      label:'TA เฉลี่ย (฿/ตะกร้า)',
+      data:[334.9,344.0,348.2,326.4],
+      borderColor:'#0891b2',
+      backgroundColor:'rgba(8,145,178,.1)',
+      pointBackgroundColor:mthBorder,
+      pointRadius:7, pointHoverRadius:9,
+      fill:true, tension:.3, borderWidth:2.5
+    }]
+  },
+  options:lineOpt2(' ฿')
+});
+
+</script>
+
+<!-- ══ Modal โปรเจค พ.ค. ══ -->
+<div class="modal-overlay" id="projModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+
+    <div class="modal-hdr">
+      <div>
+        <h2 id="mTitle">📋 แผนโปรเจค B2C — พฤษภาคม 2569</h2>
+        <div class="sub">โลตัสดำเนินสะดวก FLP19 | ทีมมะปราง เจ้าขา</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <!-- LIST VIEW -->
+    <div id="vList">
+      <div class="proj-grid" id="projGrid"></div>
+    </div>
+
+    <!-- DETAIL VIEW -->
+    <div id="vDetail" class="proj-detail">
+      <div class="detail-hdr" id="detailHdr">
+        <button class="detail-back" onclick="showList()">← กลับรายการ</button>
+        <div class="detail-title" id="dTitle"></div>
+        <div class="detail-badges" id="dBadges"></div>
+      </div>
+      <div class="detail-body">
+        <div class="d-sec">
+          <div class="d-sec-title">📌 วัตถุประสงค์</div>
+          <div style="font-size:14px;color:#334155;line-height:1.7;" id="dObj"></div>
+        </div>
+        <!-- Mechanic (shown only if project has mechanic data) -->
+        <div class="d-sec" id="dMechSec" style="display:none;">
+          <div class="d-sec-title">🎟️ Mechanic กิจกรรม</div>
+          <div class="mech-box" id="dMech"></div>
+        </div>
+        <div class="d-sec">
+          <div class="d-sec-title">📅 ข้อมูลโปรเจค</div>
+          <div class="d-grid">
+            <div class="d-item"><label>วันที่เริ่ม</label><div class="dv" id="dStart"></div></div>
+            <div class="d-item"><label>วันที่สิ้นสุด</label><div class="dv" id="dEnd"></div></div>
+            <div class="d-item"><label>ผู้รับผิดชอบ</label><div class="dv" id="dOwner"></div></div>
+            <div class="d-item">
+              <label>ความคืบหน้า</label>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:5px;">
+                <div class="prog-wrap"><div class="prog-fill" id="dProg" style="width:0%"></div></div>
+                <span style="font-size:13px;font-weight:700;color:#0891b2;" id="dProgPct">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-sec">
+          <div class="d-sec-title">📋 แผนดำเนินงาน</div>
+          <ul class="task-list" id="dTasks"></ul>
+        </div>
+        <div class="d-sec">
+          <div class="d-sec-title">🎯 KPI ที่คาดหวัง</div>
+          <div class="kpi3" id="dKPI"></div>
+        </div>
+        <!-- Daily charts (shown only if project has chart data) -->
+        <div class="d-sec" id="dChartSec" style="display:none;">
+          <div class="d-sec-title" id="dChartTitle">📈 TA & TC รายวัน — พ.ค. (vs เป้าหมาย)</div>
+          <div style="font-size:11px;color:#94a3b8;margin-bottom:8px;">🔵 จริง &nbsp;|&nbsp; ‐ ‐ เป้าหมาย</div>
+          <div class="dchart-wrap"><canvas id="dChartTA"></canvas></div>
+          <div style="margin-top:12px;" class="dchart-wrap"><canvas id="dChartTC"></canvas></div>
+        </div>
+        <div class="d-sec">
+          <div class="d-sec-title">📝 หมายเหตุ / บันทึก</div>
+          <div class="note-box" id="dNote"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let dChartTAInst = null, dChartTCInst = null;
+
+const PJ = [
+  { id:1, pc:'pc1', icon:'🎟️', tag:'โปรโมชั่น', tc:'tag-promo', status:'active',
+    title:'สะสมแสตมป์แลกของรางวัล',
+    desc:'กระตุ้นให้ลูกค้ากลับมาซื้อซ้ำผ่านระบบแสตมป์สะสม แลกรับของรางวัลเมื่อครบกำหนด',
+    obj:'กระตุ้นให้ลูกค้ากลับมาซื้อซ้ำผ่านระบบสะสมแสตมป์ โดยมอบรางวัลพิเศษเมื่อสะสมครบตามเกณฑ์ เพิ่ม TA, TC และ Loyalty ของลูกค้าในระยะยาว',
+    mechType:'stamp',
+    start:'11/05/2569', end:'31/05/2569', owner:'👩‍💼 มะปราง เจ้าขา', progress:1,
+    themeGrad:'linear-gradient(135deg,#0c4a6e,#0891b2,#06b6d4)',
+    tasks:['✅ วางแผนของรางวัลและเกณฑ์การสะสม','✅ จัดทำสื่อโปรโมท ณ จุดขาย','🟡 เริ่มกิจกรรม','⬜ ติดตามผลจำนวนแสตมป์ที่แจก','⬜ สรุปผลและประเมิน'],
+    kpi:[{l:'🛒 TA เป้าหมาย',v:'380 ฿'},{l:'🧾 TC เป้าหมาย',v:'1,200 บิล'},{l:'🙋 ผู้เข้าร่วม',v:'100 คน'}],
+    chartData:{
+      type:'ta-tc',
+      labels:['1 พ.ค.','2 พ.ค.','3 พ.ค.','4 พ.ค.','5 พ.ค.'],
+      ta:[337.3,320.5,339.3,308.9,326.2], taTarget:380,
+      tc:[926,1000,941,941,876], tcTarget:1200
+    }, note:null },
+  { id:6, pc:'pc-kfc', icon:'🍗', tag:'ดึงลูกค้า', tc:'tag-cust', status:'active',
+    title:'ดึงลูกค้า KFC เข้ามาช็อปที่โลตัส',
+    desc:'2 กิจกรรมพิเศษ ซื้อ KFC แล้วรับสิทธิ์เมื่อช็อปที่โลตัสครบตามเกณฑ์',
+    obj:'วางกลยุทธ์ดึงลูกค้าที่มาซื้อ KFC ให้เดินเข้ามาช็อปในโลตัส เพิ่ม TC และ Cross-selling ผ่าน 2 กิจกรรมพิเศษ',
+    mechType:'kfc',
+    start:'11/05/2569', end:'31/05/2569', owner:'👩‍💼 มะปราง เจ้าขา', progress:15, progressLabel:'🟡 On Progress',
+    themeGrad:'linear-gradient(135deg,#7f1d1d,#c8102e,#ef4444)',
+    tasks:['✅ วางแผนการดำเนินงาน','🟡 จัดทำสื่อประชาสัมพันธ์','🟡 เริ่มกิจกรรม','⬜ ติดตามผลลูกค้าที่นำใบเสร็จ KFC มาแลก','⬜ สรุปผลและประเมิน'],
+    kpi:[{l:'🍦 ผู้เข้าร่วม (อังคาร)',v:'100 คน/วัน'},{l:'🛍️ ผู้เข้าร่วม (วันอื่น)',v:'30 คน/วัน'},{l:'📈 TC เพิ่ม',v:'—'}],
+    chartData:{
+      type:'participants',
+      title:'📈 ผู้เข้าร่วมกิจกรรม รายวัน — พ.ค. (vs เป้าหมาย)',
+      labels:['11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31'].map(d=>d+' พ.ค.'),
+      actual:Array(21).fill(null),
+      targets:[30,100,30,30,30,30,30,30,100,30,30,30,30,30,30,100,30,30,30,30,30]
+    }, note:null },
+  { id:4, pc:'pc4', icon:'🎒', tag:'Back to School', tc:'tag-season', status:'active',
+    title:'Back to School',
+    desc:'2 กิจกรรม ดึงกลุ่มผู้ปกครอง-นักเรียน ไอติมฟรี + ของแถมหมวดอุปกรณ์การเรียน',
+    obj:'ดึงกลุ่มผู้ปกครองและนักเรียนเข้าร้านผ่าน 2 กิจกรรมพิเศษช่วงเปิดเทอม เพิ่ม TC Family และยอดขายหมวด Back to School',
+    mechType:'b2s',
+    start:'11/05/2569', end:'18/05/2569', owner:'👩‍💼 มะปราง เจ้าขา', progress:15, progressLabel:'🟡 On Progress',
+    themeGrad:'linear-gradient(135deg,#1e3a8a,#1d4ed8,#3b82f6)',
+    tasks:['✅ วางแผนการดำเนินงาน','🟡 จัดทำสื่อประชาสัมพันธ์','🟡 เริ่มกิจกรรมแจกไอติม','⬜ ติดตามผลลูกค้าครอบครัวที่มีเด็กมาแลกไอติม','⬜ สรุปผลและประเมิน'],
+    kpi:[{l:'🍦 ครอบครัวแลกไอติม (รวม)',v:'250 ครั้ง'},{l:'📅 เป้าหมายต่อวัน',v:'31 ครั้ง'},{l:'📈 TC กลุ่มครอบครัว',v:'—'}],
+    chartData:{
+      type:'participants',
+      title:'📈 ครอบครัวแลกไอติม รายวัน — พ.ค. (vs เป้าหมาย)',
+      labels:['11','12','13','14','15','16','17','18'].map(d=>d+' พ.ค.'),
+      actual:Array(8).fill(null),
+      targets:Array(8).fill(31)
+    }, note:null },
+  { id:2, pc:'pc2', icon:'🏷️', tag:'Plus Sale', tc:'tag-display', status:'plan',
+    title:'จัดโซน plus sale ทั่วร้าน',
+    desc:'จัดโซนสินค้า Plus Sale กระตุ้น Upsell ทั่วร้าน เพิ่ม Basket Size และ TA ต่อบิล',
+    obj:'จัดโซนสินค้า Plus Sale กระจายทั่วร้านเพื่อกระตุ้นให้ลูกค้าหยิบสินค้าเพิ่ม เพิ่ม TA และ Basket Size ผ่านการจัดวางและป้ายโปรโมชั่น',
+    mechType:null, themeGrad:'linear-gradient(135deg,#3730a3,#6d28d9,#8b5cf6)',
+    start:null, end:null, owner:null, progress:0,
+    tasks:['⬜ สำรวจพื้นที่และออกแบบ Layout','⬜ จัดเตรียมสินค้า Hero ที่จะวาง','⬜ จัดซุ้มและตกแต่งป้าย','⬜ ถ่ายภาพ Before-After','⬜ วัดผล Traffic หลังจัด'],
+    kpi:[{l:'🚶 Traffic Electronics',v:'—'},{l:'🛒 Basket Size',v:'—'},{l:'💰 ยอดขาย Electronics',v:'—'}],
+    chartData:null, note:null },
+  { id:5, pc:'pc5', icon:'🎰', tag:'กิจกรรม', tc:'tag-event', status:'plan',
+    title:'Lucky Draw รายสัปดาห์',
+    desc:'จับรางวัล Lucky Draw ทุกสัปดาห์ กระตุ้นการซื้อซ้ำและสร้าง Excitement ในร้าน',
+    obj:'จัดกิจกรรม Lucky Draw รายสัปดาห์เพื่อกระตุ้นให้ลูกค้ากลับมาซื้อซ้ำ สร้างความตื่นเต้นและ Loyalty ผ่านโอกาสลุ้นรางวัลทุกสัปดาห์',
+    mechType:null, themeGrad:'linear-gradient(135deg,#14532d,#166534,#22c55e)',
+    start:null, end:null, owner:null, progress:0,
+    tasks:['⬜ กำหนดของรางวัลและเกณฑ์การร่วมกิจกรรม','⬜ ขออนุมัติงบและของรางวัล','⬜ จัดทำสื่อประชาสัมพันธ์','⬜ ดำเนินการจับรางวัลรายสัปดาห์','⬜ สรุปผลและประเมิน'],
+    kpi:[{l:'🎫 ผู้ร่วมกิจกรรม/สัปดาห์',v:'—'},{l:'🔁 Repeat Visit',v:'—'},{l:'📈 TC เพิ่ม',v:'—'}],
+    chartData:null, note:null },
+  { id:3, pc:'pc3', icon:'🍽️', tag:'กิจกรรม', tc:'tag-event', status:'plan',
+    title:'อังคารนี้มีจัดชิม',
+    desc:'จัดกิจกรรมชิมสินค้าทุกวันอังคาร กระตุ้นการตัดสินใจซื้อ ณ จุดขาย',
+    obj:'จัดกิจกรรมให้ลูกค้าทดลองชิมสินค้าทุกวันอังคาร เพื่อกระตุ้นการตัดสินใจซื้อ ณ จุดขาย และสร้างประสบการณ์ที่น่าจดจำในร้าน',
+    mechType:null, themeGrad:'linear-gradient(135deg,#064e3b,#065f46,#10b981)',
+    start:null, end:null, owner:null, progress:0,
+    tasks:['⬜ เลือกสินค้าที่จะนำมาชิมแต่ละอังคาร','⬜ ขออนุมัติงบและสินค้าตัวอย่าง','⬜ เตรียมอุปกรณ์และจัดบูธชิม','⬜ บันทึกจำนวนลูกค้าที่ชิมและซื้อ','⬜ สรุปผลรายสัปดาห์'],
+    kpi:[{l:'🔄 Conversion Rate',v:'—'},{l:'📦 สินค้าที่ขายได้',v:'—'},{l:'🙋 ลูกค้าที่ชิม/สัปดาห์',v:'—'}],
+    chartData:null, note:null }
+];
+
+const ph = txt => `<span class="d-ph">${txt}</span>`;
+
+document.getElementById('projGrid').innerHTML = PJ.map(p=>`
+  <div class="proj-card ${p.pc}" onclick="showDetail(${p.id})">
+    <span class="proj-tag ${p.tc}">${p.tag}</span>
+    <div class="proj-title">${p.icon} ${p.title}</div>
+    <div class="proj-desc">${p.desc}</div>
+    <div class="proj-footer">
+      <span class="proj-status ${p.status==='active'?'st-active':'st-plan'}">
+        ${p.status==='active'?'🟢 กำลังดำเนินการ':'🟡 วางแผน'}
+      </span>
+      <span style="font-size:20px;color:#bae6fd;line-height:1;">›</span>
+    </div>
+  </div>`).join('');
+
+function mkLineChart(canvasId, labels, actual, targets, label, suffix, color){
+  const targetsArr = Array.isArray(targets) ? targets : Array(labels.length).fill(targets);
+  return new Chart(document.getElementById(canvasId),{
+    type:'line',
+    data:{labels, datasets:[
+      {label, data:actual, borderColor:color,
+       backgroundColor:color.replace('rgb(','rgba(').replace(')',',0.08)'),
+       pointBackgroundColor:color, pointRadius:5, pointHoverRadius:7,
+       fill:true, tension:.35, borderWidth:2.5, spanGaps:false},
+      {label:'🎯 เป้าหมาย', data:targetsArr,
+       borderColor:'#f97316', borderDash:[6,4], borderWidth:2,
+       pointRadius:0, fill:false}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{font:{size:11}, boxWidth:12}},
+               tooltip:{callbacks:{label:c=>c.raw!=null?c.raw+suffix:'ยังไม่มีข้อมูล'}}},
+      scales:{y:{ticks:{callback:v=>v+suffix}, grid:{color:'rgba(0,0,0,.05)'}},
+              x:{grid:{display:false}, ticks:{maxRotation:45, font:{size:10}}}}}
+  });
+}
+
+function mechStampHTML(){
+  return `
+    <div class="mech-box">
+      <div class="mech-period">📅 ระยะเวลากิจกรรม &nbsp;|&nbsp; 1 – 31 พฤษภาคม 2569</div>
+      <div class="mech-rule">🎟️ ซื้อครบทุก 400 บาท รับแสตมป์ 1 ดวง ⭐</div>
+      <div class="mech-row">🎁 <span>สะสมครบตามระดับที่กำหนด <b>เลือกแลกรางวัล</b> หรือ <b>สะสมต่อ</b> เพื่อแลกรางวัลระดับสูงขึ้น</span></div>
+      <div class="mech-row">📬 <span>นำสมุดแสตมป์หยอดกล่องรับแสตมป์ได้ <b>ตั้งแต่ 1–31 พ.ค. 2569</b></span></div>
+      <div class="mech-row">🎉 <span>แลกรับรางวัลได้ตั้งแต่ <b>7 พ.ค. 2569</b> เป็นต้นไป</span></div>
+      <div class="mech-note">⚠️ แลกรับสิทธิ์ได้สูงสุด <b>3 สิทธิ์/เดือน</b> ต่อ 1 สมาชิก My Lotus's</div>
+    </div>`;
+}
+
+function mechB2SHTML(){
+  return `
+    <div class="act-title">🍦 กิจกรรมที่ 1 — เด็กรับไอติมฟรี</div>
+    <div class="mech-b2s">
+      <div class="mech-period">📅 ระยะเวลากิจกรรม &nbsp;|&nbsp; 11 – 18 พฤษภาคม 2569</div>
+      <div class="mech-rule">👨‍👩‍👧 ครอบครัวพร้อมเด็กนักเรียน อายุ 5–12 ปี ซื้อสินค้าโลตัส (ราคาใดก็ได้)</div>
+      <div class="mech-row">🍦 <span>เด็กรับ <b>ไอติมซอฟท์เสิร์ฟ ฟรี!</b> ทันที</span></div>
+      <div class="mech-note">⚠️ จำกัด <b>1 สิทธิ์</b> ต่อ 1 สมาชิก My Lotus's / วัน</div>
+    </div>
+    <div class="act-title" style="margin-top:12px;">📚 กิจกรรมที่ 2 — เปิดเทอมนี้ ของมันต้องมี!</div>
+    <div class="mech-b2s">
+      <div class="mech-rule">🎒 ซื้อสินค้าในหมวด Back to School รับของแถมฟรี!</div>
+      <div class="mech-row">🎨 <span>รับฟรี <b>กระดาษระบายสี</b></span></div>
+      <div class="mech-row">✏️ <span>รับฟรี <b>กระดาษคัดลายมือ</b></span></div>
+      <div class="mech-row">🗺️ <span>รับฟรี <b>กระดาษพับฝึกทักษะ</b></span></div>
+    </div>`;
+}
+
+function mechKFCHTML(){
+  return `
+    <div class="act-title">🍦 กิจกรรมที่ 1 — ซื้อ KFC ฟรีไอติมทุกวันอังคาร</div>
+    <div class="mech-kfc">
+      <div class="mech-period">📅 ทุกวันอังคาร &nbsp;|&nbsp; พฤษภาคม 2569</div>
+      <div class="mech-rule">🍗 ซื้อ KFC (มูลค่าเท่าใดก็ได้) + ซื้อสินค้าโลตัสครบ 99 บาท</div>
+      <div class="mech-row">🍦 <span>รับฟรี <b>ไอติมซอฟท์เสิร์ฟโลตัส</b> ทันที!</span></div>
+      <div class="mech-note">⚠️ จำกัด <b>1 สิทธิ์</b> ต่อ 1 สมาชิก My Lotus's / วัน</div>
+    </div>
+    <div class="act-title" style="margin-top:12px;">🎟️ กิจกรรมที่ 2 — ซื้อ KFC รับแสตมป์สะสม</div>
+    <div class="mech-kfc">
+      <div class="mech-rule">🍗 ซื้อ KFC (มูลค่าเท่าใดก็ได้) + ซื้อสินค้าโลตัสครบ 129 บาท</div>
+      <div class="mech-row">🎟️ <span>รับ <b>แสตมป์สะสม 1 ดวง</b> ทันที</span></div>
+    </div>
+    <div class="act-title" style="margin-top:12px;">📢 ช่องทางประชาสัมพันธ์ (CTA)</div>
+    <div style="background:#fff;border-radius:10px;padding:10px 14px;border:1px solid #fecaca;">
+      <div class="cta-item">🅿️ <span>สื่อที่ลานจอดรถใกล้ทางเข้า KFC</span></div>
+      <div class="cta-item">💬 <span>Online ผ่านไลน์กลุ่มโลตัสชุมชนดำเนินสะดวก</span></div>
+      <div class="cta-item">📄 <span>Leaflet ร้านพันธมิตร Mall หน้าสาขา และ O2O</span></div>
+      <div class="cta-item">🏷️ <span>ติดป้ายที่จุดแคชเชียร์</span></div>
+    </div>`;
+}
+
+function showDetail(id){
+  const p = PJ.find(x=>x.id===id);
+  document.getElementById('mTitle').textContent = `${p.icon} ${p.title}`;
+  document.getElementById('dTitle').textContent  = `${p.icon} ${p.title}`;
+  document.getElementById('detailHdr').style.background = p.themeGrad || 'linear-gradient(135deg,#0c4a6e,#0891b2,#06b6d4)';
+  document.getElementById('dBadges').innerHTML = `
+    <span class="proj-tag ${p.tc}">${p.tag}</span>
+    <span class="proj-status ${p.status==='active'?'st-active':'st-plan'}" style="margin-top:0">
+      ${p.status==='active'?'🟢 กำลังดำเนินการ':'🟡 วางแผน'}</span>`;
+  document.getElementById('dObj').textContent = p.obj;
+
+  // Mechanic section
+  const mechSec = document.getElementById('dMechSec');
+  if(p.mechType){
+    mechSec.style.display = 'block';
+    document.getElementById('dMech').innerHTML =
+      p.mechType==='kfc' ? mechKFCHTML() :
+      p.mechType==='b2s' ? mechB2SHTML() : mechStampHTML();
+  } else {
+    mechSec.style.display = 'none';
+  }
+
+  document.getElementById('dStart').innerHTML  = p.start  || ph('ยังไม่ระบุ');
+  document.getElementById('dEnd').innerHTML    = p.end    || ph('ยังไม่ระบุ');
+  document.getElementById('dOwner').innerHTML  = p.owner  || ph('ยังไม่ระบุ');
+  document.getElementById('dProg').style.width = p.progress+'%';
+  document.getElementById('dProgPct').textContent = p.progressLabel || p.progress+'%';
+  document.getElementById('dTasks').innerHTML = p.tasks.map(t=>`
+    <li><div class="task-check"></div><span>${t}</span></li>`).join('');
+  document.getElementById('dKPI').innerHTML = p.kpi.map(k=>`
+    <div class="kpi-chip"><div class="kc-label">${k.l}</div><div class="kc-val">${k.v}</div></div>`).join('');
+
+  // Charts section
+  const chartSec = document.getElementById('dChartSec');
+  if(dChartTAInst){ dChartTAInst.destroy(); dChartTAInst = null; }
+  if(dChartTCInst){ dChartTCInst.destroy(); dChartTCInst = null; }
+  if(p.chartData){
+    chartSec.style.display = 'block';
+    const cd = p.chartData;
+    document.getElementById('dChartTitle').textContent = cd.title || '📈 ข้อมูลรายวัน — พ.ค. (vs เป้าหมาย)';
+    if(cd.type === 'ta-tc'){
+      document.getElementById('dChartTC').parentElement.style.display = 'block';
+      dChartTAInst = mkLineChart('dChartTA', cd.labels, cd.ta, cd.taTarget, '🛒 TA (฿/ตะกร้า)', ' ฿', 'rgb(8,145,178)');
+      dChartTCInst = mkLineChart('dChartTC', cd.labels, cd.tc, cd.tcTarget, '🧾 TC (บิล)', ' บิล', 'rgb(139,92,246)');
+    } else if(cd.type === 'participants'){
+      document.getElementById('dChartTC').parentElement.style.display = 'none';
+      dChartTAInst = mkLineChart('dChartTA', cd.labels, cd.actual, cd.targets, '🙋 ผู้เข้าร่วม (คน)', ' คน', 'rgb(200,16,46)');
+    }
+  } else {
+    chartSec.style.display = 'none';
+  }
+
+  document.getElementById('dNote').textContent = p.note || '📝 ยังไม่มีบันทึก';
+  document.getElementById('vList').style.display   = 'none';
+  document.getElementById('vDetail').style.display = 'block';
+  document.getElementById('projModal').scrollTop = 0;
+}
+
+function showList(){
+  document.getElementById('mTitle').textContent = '📋 แผนโปรเจค B2C — พฤษภาคม 2569';
+  document.getElementById('vList').style.display   = 'block';
+  document.getElementById('vDetail').style.display = 'none';
+}
+
+function closeModal(){
+  document.getElementById('projModal').classList.remove('open');
+  showList();
+}
+</script>
+</body>
+</html>

@@ -163,8 +163,20 @@ tr:hover td{background:#f0f9ff;}
 .prog-wrap{background:#e0f2fe;border-radius:20px;height:7px;flex:1;}
 .prog-fill{background:linear-gradient(90deg,#0891b2,#06b6d4);border-radius:20px;height:7px;}
 /* Open button */
-.proj-btn{background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff;border:none;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
-.proj-btn:hover{opacity:.88;}
+.proj-btn{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#0c4a6e,#0891b2,#06b6d4);
+  color:#fff;border:none;padding:10px 22px 10px 14px;
+  border-radius:28px;font-size:13px;font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  box-shadow:0 4px 18px rgba(8,145,178,.45),0 0 0 2px rgba(255,255,255,.18) inset;
+  letter-spacing:.03em;transition:transform .15s,box-shadow .15s;
+}
+.proj-btn:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(8,145,178,.55),0 0 0 2px rgba(255,255,255,.25) inset;}
+.proj-btn:active{transform:translateY(0);}
+.proj-btn-cat{display:block;image-rendering:pixelated;flex-shrink:0;}
+.proj-btn-label{display:flex;flex-direction:column;line-height:1.2;}
+.proj-btn-sub{font-size:9px;font-weight:500;opacity:.75;letter-spacing:.06em;margin-top:1px;}
 /* Mechanic box */
 .mech-box{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:2px solid #fde68a;border-radius:14px;padding:16px 18px;}
 .mech-period{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:8px 14px;font-size:13px;color:#c2410c;font-weight:700;text-align:center;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px;}
@@ -210,8 +222,12 @@ tr:hover td{background:#f0f9ff;}
 
 <!-- ══ Project Button ══ -->
 <div style="margin-bottom:14px;display:flex;justify-content:flex-end;">
-  <button class="proj-btn" onclick="document.getElementById('projModal').classList.add('open')">
-    📋 ดูโปรเจค พ.ค. 2026
+  <button class="proj-btn" id="projOpenBtn" onclick="document.getElementById('projModal').classList.add('open')">
+    <canvas class="proj-btn-cat" id="catBtn" width="22" height="22"></canvas>
+    <span class="proj-btn-label">
+      <span>📋 ดูโปรเจค พ.ค. 2026</span>
+      <span class="proj-btn-sub">✨ 9 โปรเจคกำลังดำเนินการ</span>
+    </span>
   </button>
 </div>
 
@@ -943,6 +959,101 @@ new Chart(document.getElementById('mMargin'),{
   window.addEventListener('load',()=>{runCat('catCanvas1');runCat('catCanvas2');});
 })();
 
+/* ── Button white cat ── */
+(function(){
+  const S = 2;
+  // white cat palette: null=transparent, 1=white, 2=lightgray(shadow), 3=pink(nose/ear), 4=black(eyes), 5=gray(outline)
+  const PAL = [null,'#ffffff','#e2e8f0','#fda4af','#1e293b','#94a3b8','#bfdbfe'];
+  // frame0: sitting/tail left, frame1: sitting/tail right  (11 rows × 8 cols)
+  const FR = [
+    // frame 0 — ears up, tail flick left
+    [[0,5,0,0,0,0,5,0],
+     [5,1,5,0,0,5,1,5],
+     [5,1,1,5,5,1,1,5],
+     [5,1,4,1,1,4,1,5],
+     [5,1,1,1,1,1,1,5],
+     [5,1,1,3,1,1,1,5],
+     [0,5,1,1,1,1,5,0],
+     [0,5,1,2,2,1,5,0],
+     [5,1,1,1,1,1,1,5],
+     [5,2,5,0,0,5,2,5],
+     [5,0,0,0,0,0,5,0]],
+    // frame 1 — ears up, tail flick right
+    [[0,5,0,0,0,0,5,0],
+     [5,1,5,0,0,5,1,5],
+     [5,1,1,5,5,1,1,5],
+     [5,1,4,1,1,4,1,5],
+     [5,1,1,1,1,1,1,5],
+     [5,1,1,3,1,1,1,5],
+     [0,5,1,1,1,1,5,0],
+     [0,5,1,2,2,1,5,0],
+     [5,1,1,1,1,1,1,5],
+     [5,2,5,0,0,5,2,5],
+     [0,5,0,0,0,0,0,5]],
+  ];
+  // tiny sparkle
+  const STAR = [[0,6,0],[6,6,6],[0,6,0]];
+
+  function runBtnCat(id){
+    const cv = document.getElementById(id);
+    if(!cv) return;
+    const W = cv.width, H = cv.height;
+    const ctx = cv.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    let frame = 0, tick = 0;
+    let sparkles = [];
+
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      // draw cat centered
+      const catW = 8*S, catH = 11*S;
+      const ox = Math.floor((W-catW)/2);
+      const oy = Math.floor((H-catH)/2);
+      const grid = FR[frame];
+      for(let r=0;r<11;r++){
+        for(let c=0;c<8;c++){
+          const ci = grid[r][c];
+          if(!ci) continue;
+          ctx.fillStyle = PAL[ci];
+          ctx.fillRect(ox+c*S, oy+r*S, S, S);
+        }
+      }
+      // sparkles
+      sparkles = sparkles.filter(s=>s.life>0);
+      sparkles.forEach(s=>{
+        const a = s.life/18;
+        ctx.globalAlpha = a;
+        for(let r=0;r<3;r++) for(let c=0;c<3;c++){
+          if(!STAR[r][c]) continue;
+          ctx.fillStyle = PAL[STAR[r][c]];
+          ctx.fillRect(s.x+c*S, s.y+r*S, S, S);
+        }
+        ctx.globalAlpha = 1;
+        s.life--;
+      });
+    }
+
+    function step(){
+      tick++;
+      if(tick % 18 === 0){
+        frame = 1 - frame;
+        // emit sparkle near ear
+        if(Math.random()<0.6){
+          const ox = Math.floor((W-8*S)/2);
+          const oy = Math.floor((H-11*S)/2);
+          sparkles.push({x: ox + (Math.random()<0.5?0:5)*S, y: oy-3, life:18});
+        }
+      }
+      draw();
+      requestAnimationFrame(step);
+    }
+    step();
+  }
+
+  window.addEventListener('load', ()=>{ runBtnCat('catBtn'); });
+})();
+
 </script>
 
 <!-- ══ Modal โปรเจค พ.ค. ══ -->
@@ -1107,15 +1218,25 @@ const PJ = [
     tasks:['⬜ รายละเอียดจะถูกเพิ่มในภายหลัง'],
     kpi:[{l:'💎 สมาชิก Active',v:'—'},{l:'🔁 Repeat Purchase Rate',v:'—'},{l:'📈 CLV',v:'—'}],
     chartData:null, note:null },
-  { id:10, pc:'pc10', icon:'⚖️', tag:'Fresh Food', tc:'tag-season', status:'plan',
-    title:'ชั่งข้าว/ชั่งทุเรียน',
-    desc:'กิจกรรมชั่งน้ำหนักข้าวและทุเรียน สร้าง Experience และดึง Traffic กลุ่มสินค้า Fresh',
-    obj:'สร้างประสบการณ์ที่น่าสนใจกับสินค้า Fresh Category โดยเฉพาะข้าวและทุเรียน ดึง Traffic และเพิ่มยอดขาย Fresh Food',
-    mechType:null, themeGrad:'linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9)',
-    start:null, end:null, owner:null, progress:0,
-    tasks:['⬜ รายละเอียดจะถูกเพิ่มในภายหลัง'],
-    kpi:[{l:'⚖️ ลูกค้าร่วมกิจกรรม',v:'—'},{l:'🌾 ยอดขายข้าว/ทุเรียน',v:'—'},{l:'📈 Traffic Fresh',v:'—'}],
-    chartData:null, note:null },
+  { id:10, pc:'pc10', icon:'🍈', tag:'Fresh Food', tc:'tag-season', status:'active',
+    title:'แผนการขายทุเรียน',
+    desc:'Mister & Miss Durian + ชั่งทุเรียน — สร้าง Experience ดึง Traffic เพิ่มยอดขาย Fresh & Frozen ช่วง Peak Season',
+    obj:'โครงการแบ่งเป็น 2 กิจกรรม:\n(1) Mister & Miss Durian — บริการคัด แกะ แพ็ค ทุเรียน รวมถึงแบบแกะพร้อมทานเพื่อความสะดวกแก่ลูกค้า\n(2) ชั่งทุเรียน — ลูกค้าทายน้ำหนักทุเรียนแบบไม่สัมผัส บวกลบไม่เกิน 10 กรัม = รับฟรี!\n\nเงื่อนไขที่ 1: ซื้อสินค้าครบ 400 บาทขึ้นไป → เลือกรับแสตมป์สะสม หรือเล่นชั่งทุเรียน ทายถูกรับฟรี ทายผิดไม่เสียค่าทุเรียน\n\nเงื่อนไขที่ 2: ซื้อสินค้าต่ำกว่า 400 บาท → เล่นได้ ทายถูกรับฟรี ทายผิดต้องซื้อทุเรียนแพ็คที่หยิบ\n\n🗓️ จัดกิจกรรมเฉพาะ ศุกร์ เสาร์ อาทิตย์',
+    mechType:'durian', themeGrad:'linear-gradient(135deg,#365314,#4d7c0f,#84cc16)',
+    start:'11/05/2569', end:'31/05/2569', owner:'👩‍💼 มะปราง เจ้าขา', progress:15, progressLabel:'🟡 On Progress',
+    tasks:['🟡 จัดเตรียมอุปกรณ์ คัด แกะ แพ็ค และตาชั่งสำหรับกิจกรรม','⬜ ติดตามแผนส่งทุเรียนรายสัปดาห์ (WK20–WK22)','⬜ จัดกิจกรรมชั่งทุเรียน ศ–อา อย่างต่อเนื่อง','⬜ ถ่ายคลิป/Reel กิจกรรม แชร์ผ่าน LINE ชุมชน','⬜ Cross-sell Frozen Dessert + PCF ควบคู่กับทุเรียน','⬜ บันทึกจำนวนลูกค้าร่วมกิจกรรมทุกวัน','⬜ ติดตามยอดขายเทียบเป้า รายสัปดาห์'],
+    kpi:[{l:'🍈 ยอดทุเรียน (202605)',v:'197,635 ฿'},{l:'❄️ Frozen+PCF',v:'50,000 ฿/เดือน'},{l:'🙋 ผู้ร่วมกิจกรรม',v:'100 คน/วัน'}],
+    chartData:{
+      type:'durian',
+      title:'🍈 เป้าหมายยอดขายทุเรียน พ.ค. (202605) — 7 สาขา',
+      branchLabels:['6435\nดำเนินฯ','6439\nเชิงทะเล','6448\nเจ้าฟ้า','6455\nลำลูกกา4','6482\nบ้านนา','6586\nปงสนุก','6660\nพัฒนาการ30'],
+      branchTargets:[197635,334427,294589,443752,433017,345658,208231],
+      branchActual:[null,null,null,null,null,null,null],
+      deliveryTitle:'📦 แผนส่ง WK20 (11–17 พ.ค.) — สาขา 6435 ดำเนินสะดวก',
+      deliveryLabels:['11/5(อา)','12/5(จ)','13/5(อ)','14/5(พ)','15/5(พฤ)','16/5(ศ)','17/5(ส)'],
+      deliveryData:[1,0,2,2,0,2,1]
+    },
+    note:'📦 แผนส่งทุเรียนหมอนทอง กก.ละ WK20 (11–17 พ.ค. 2569)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nสาขา                  11  12  13  14  15  16  17  รวม\n6435 ดำเนินสะดวก        1   0   2   2   0   2   1    8\n6439 เชิงทะเล           7   0   6   7   0   9   0   29\n6448 เจ้าฟ้า ภูเก็ต     3   0   3   2   0   3   0   11\n6455 ลำลูกกา คลอง 4     1   0   2   0   2   2   1    8\n6482 บ้านนา นครนายก     0   5   0   0   5   0   6   16\n6586 ปงสนุก ลำปาง       7   0   6   6   0   9   0   28\n6660 โอเอซิส พัฒนาการ30  3   0   0   3   0   3   0    9\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n📊 การวิเคราะห์ตลาดทุเรียนและคู่แข่ง\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🌏 ภาพรวมตลาด (Peak Season พ.ค.–ก.ค.)\n• ทุเรียนหมอนทองเป็น Hero Item Tier 1 ราคาปลีก 150–300 ฿/กก.\n• ผลผลิตสูงสุดช่วง พ.ค.–ก.ค. ราคาจะลดลงแต่ Demand พุ่งพร้อมกัน\n• กลุ่มลูกค้าหลัก: ครอบครัว, คนรักทุเรียน, ซื้อเป็นของฝาก\n• Trend: ทุเรียนแกะพร้อมทาน (Ready-to-Eat) เติบโตสูงในกลุ่ม Urban\n\n🏪 คู่แข่งสำคัญ\n• ตลาดสด/แผงข้างทาง: ถูกกว่า 10–20% แต่ไม่มี Service, ไม่มี Experience\n• Makro / BigC: ทุเรียนแกะพร้อมทาน ราคาแข่งกัน, Volume สูง\n• Tops / Villa Market: Premium Durian, ราคาสูงกว่าเรา, ลูกค้า Premium\n• Online (Grab/Shopee Food): สะดวก ส่วนแบ่งเพิ่มขึ้นทุกปี แต่ค่าส่งสูง\n• จุดแข็งของเรา: Location + My Lotus\'s Member Base + Activity Experience\n\n💡 แนวทางปรับปรุงกิจกรรม\n1. 📱 Viral Content: ถ่าย Reel/TikTok กิจกรรมชั่งทุเรียน "ทายน้ำหนักแล้วได้ฟรี!" แชร์ก่อน ศ–อา\n2. 🍚 Cross-sell Bundle: ทุเรียน + ข้าวเหนียวมูน + ซีพี Frozen Dessert = เพิ่ม Basket Size\n3. ⏰ จัด Time Slot: 10:00–12:00 น. และ 15:00–18:00 น. เพื่อดึง Traffic ช่วง Prime Time\n4. 🎯 Target Weekend: โฟกัสลูกค้าครอบครัว ส.–อ. ซึ่งมี Dwell Time สูงกว่าวันธรรมดา\n5. 📦 Stock Alert: สั่งเพิ่มทันทีเมื่อสต็อกเหลือ < 30% เพื่อไม่ให้ขาดระหว่างกิจกรรม\n6. 🏆 Leaderboard: แจ้งผลยอดขายทุเรียนเทียบ 7 สาขาทุกวัน สร้าง Motivation ทีม' },
   { id:5, pc:'pc5', icon:'🎰', tag:'กิจกรรม', tc:'tag-event', status:'pending',
     title:'Lucky Draw รายสัปดาห์',
     desc:'จับรางวัล Lucky Draw ทุกสัปดาห์ กระตุ้นการซื้อซ้ำและสร้าง Excitement ในร้าน',
@@ -1216,6 +1337,27 @@ function mechKFCHTML(){
     </div>`;
 }
 
+function mechDurianHTML(){
+  return `
+    <div class="act-title">🍈 กิจกรรมที่ 1 — Mister & Miss Durian</div>
+    <div class="mech-b2s">
+      <div class="mech-row">🔪 <span>บริการ <b>คัด แกะ แพ็ค</b> ทุเรียนหมอนทอง + แบบ <b>แกะพร้อมทาน</b> เพื่อความสะดวก</span></div>
+      <div class="mech-note">⚠️ จัดเฉพาะวัน <b>ศุกร์ เสาร์ อาทิตย์</b></div>
+    </div>
+    <div class="act-title" style="margin-top:12px;">⚖️ กิจกรรมที่ 2 — ชั่งทุเรียน ลุ้นรับฟรี!</div>
+    <div class="mech-b2s">
+      <div class="mech-period">📅 ทุกวัน ศ–อา &nbsp;|&nbsp; 11–31 พฤษภาคม 2569</div>
+      <div class="mech-rule" style="font-size:13px;">🛒 เงื่อนไขที่ 1 — ซื้อสินค้าครบ 400 บาทขึ้นไป</div>
+      <div class="mech-row">⭐ <span>เลือก <b>รับแสตมป์สะสม</b> หรือ <b>ร่วมชั่งทุเรียน</b></span></div>
+      <div class="mech-row">✅ <span>ทายถูก (±10 กรัม) → รับทุเรียนแพ็คนั้น <b>ฟรี!</b></span></div>
+      <div class="mech-row">😊 <span>ทายผิด → <b>ไม่ต้องชำระค่าทุเรียน</b></span></div>
+      <div class="mech-rule" style="font-size:13px;margin-top:10px;">🛒 เงื่อนไขที่ 2 — ซื้อสินค้าต่ำกว่า 400 บาท</div>
+      <div class="mech-row">✅ <span>ทายถูก (±10 กรัม) → รับทุเรียนแพ็คนั้น <b>ฟรี!</b></span></div>
+      <div class="mech-row">💰 <span>ทายผิด → <b>ต้องซื้อทุเรียนแพ็คที่หยิบ</b></span></div>
+      <div class="mech-note" style="margin-top:8px;">📌 กติกา: ลูกค้าทายน้ำหนัก <b>โดยไม่สัมผัส</b> ทุเรียน / บวกลบไม่เกิน <b>10 กรัม</b> = ถือว่าถูก</div>
+    </div>`;
+}
+
 function showDetail(id){
   const p = PJ.find(x=>x.id===id);
   document.getElementById('mTitle').textContent = `${p.icon} ${p.title}`;
@@ -1233,7 +1375,8 @@ function showDetail(id){
     mechSec.style.display = 'block';
     document.getElementById('dMech').innerHTML =
       p.mechType==='kfc' ? mechKFCHTML() :
-      p.mechType==='b2s' ? mechB2SHTML() : mechStampHTML();
+      p.mechType==='b2s' ? mechB2SHTML() :
+      p.mechType==='durian' ? mechDurianHTML() : mechStampHTML();
   } else {
     mechSec.style.display = 'none';
   }
@@ -1263,6 +1406,45 @@ function showDetail(id){
     } else if(cd.type === 'participants'){
       document.getElementById('dChartTC').parentElement.style.display = 'none';
       dChartTAInst = mkLineChart('dChartTA', cd.labels, cd.actual, cd.targets, '🙋 ผู้เข้าร่วม (คน)', ' คน', 'rgb(200,16,46)');
+    } else if(cd.type === 'durian'){
+      // Top chart: branch targets bar
+      document.getElementById('dChartTC').parentElement.style.display = 'block';
+      const ctxTA = document.getElementById('dChartTA').getContext('2d');
+      if(dChartTAInst) dChartTAInst.destroy();
+      const branchColors = cd.branchLabels.map((_,i)=> i===0 ? 'rgba(22,163,74,0.85)' : 'rgba(101,163,13,0.7)');
+      dChartTAInst = new Chart(ctxTA,{
+        type:'bar',
+        data:{labels:cd.branchLabels, datasets:[
+          {label:'🎯 เป้าหมาย (฿)', data:cd.branchTargets,
+           backgroundColor:branchColors, borderColor:branchColors.map(c=>c.replace('0.85','1').replace('0.7','1')),
+           borderWidth:1.5, borderRadius:5},
+          {label:'📊 ยอดจริง (฿)', data:cd.branchActual,
+           backgroundColor:'rgba(249,115,22,0.75)', borderRadius:5, borderWidth:1.5}
+        ]},
+        options:{responsive:true, maintainAspectRatio:false,
+          plugins:{legend:{position:'bottom', labels:{font:{size:10},boxWidth:10}},
+            tooltip:{callbacks:{label:c=>c.raw!=null?'฿'+c.raw.toLocaleString():'ยังไม่มีข้อมูล'}}},
+          scales:{y:{ticks:{callback:v=>'฿'+(v/1000).toFixed(0)+'K'}, grid:{color:'rgba(0,0,0,.05)'}},
+            x:{grid:{display:false}, ticks:{font:{size:9}}}}}
+      });
+      // Bottom chart: weekly delivery for 6435
+      document.getElementById('dChartTitle2') && (document.getElementById('dChartTitle2').textContent = cd.deliveryTitle);
+      const ctxTC = document.getElementById('dChartTC').getContext('2d');
+      if(dChartTCInst) dChartTCInst.destroy();
+      dChartTCInst = new Chart(ctxTC,{
+        type:'bar',
+        data:{labels:cd.deliveryLabels, datasets:[{
+          label:'📦 กล่องที่ส่ง (กก.ละ)', data:cd.deliveryData,
+          backgroundColor:cd.deliveryData.map(v=>v>0?'rgba(101,163,13,0.8)':'rgba(203,213,225,0.5)'),
+          borderRadius:4, borderWidth:1
+        }]},
+        options:{responsive:true, maintainAspectRatio:false,
+          plugins:{legend:{display:false},
+            datalabels:{display:true, anchor:'end', align:'top', color:'#365314', font:{size:10,weight:'bold'},
+              formatter:v=>v>0?v+'กล่อง':'—'}},
+          scales:{y:{beginAtZero:true, ticks:{stepSize:1}, grid:{color:'rgba(0,0,0,.05)'}},
+            x:{grid:{display:false}, ticks:{font:{size:10}}}}}
+      });
     } else if(cd.type === 'items'){
       document.getElementById('dChartTC').parentElement.style.display = 'none';
       const hasData = cd.actual && cd.actual.some(v=>v!==null&&v!==undefined);

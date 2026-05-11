@@ -125,6 +125,8 @@ tr:hover td{background:#f0f9ff;}
 .pc1::before{background:#f59e0b;} .pc2::before{background:#8b5cf6;}
 .pc3::before{background:#10b981;} .pc4::before{background:#f97316;}
 .pc5::before{background:#06b6d4;} .pc6::before{background:#ec4899;}
+.pc7::before{background:#6366f1;} .pc8::before{background:#84cc16;}
+.pc9::before{background:#f43f5e;} .pc10::before{background:#0ea5e9;}
 .proj-card:hover{box-shadow:0 6px 20px rgba(8,145,178,.18);transform:translateY(-2px);}
 .proj-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;margin-bottom:8px;}
 .tag-promo{background:#fef3c7;color:#92400e;} .tag-display{background:#ede9fe;color:#5b21b6;}
@@ -134,7 +136,7 @@ tr:hover td{background:#f0f9ff;}
 .proj-desc{font-size:12px;color:#64748b;line-height:1.55;}
 .proj-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
 .proj-status{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
-.st-active{background:#dcfce7;color:#166534;} .st-plan{background:#fef9c3;color:#854d0e;}
+.st-active{background:#dcfce7;color:#166534;} .st-plan{background:#fef9c3;color:#854d0e;} .st-pending{background:#f1f5f9;color:#64748b;}
 /* Detail view */
 .proj-detail{display:none;}
 .detail-hdr{background:linear-gradient(135deg,#0c4a6e,#0891b2,#06b6d4);color:#fff;padding:20px 24px 24px;}
@@ -247,7 +249,7 @@ tr:hover td{background:#f0f9ff;}
     <div class="ach neg">25.67% Achievement</div>
     <div class="bar"><div class="bar-fill" style="width:25.67%;background:var(--red);"></div></div>
     <div style="margin-top:10px;border-top:1px dashed rgba(220,38,38,0.25);padding-top:6px;">
-      <div style="font-size:8px;font-weight:800;color:rgba(185,28,28,0.5);letter-spacing:.13em;text-align:right;margin-bottom:3px;">🔍 HUNTING FOR SALES</div>
+      <div style="font-size:8.8px;font-weight:800;color:rgba(185,28,28,0.5);letter-spacing:.13em;text-align:right;margin-bottom:3px;">🔍 HUNTING FOR SALES</div>
       <canvas id="catCanvas1" style="display:block;width:100%;height:30px;image-rendering:pixelated;cursor:default;"></canvas>
     </div>
   </div>
@@ -258,7 +260,7 @@ tr:hover td{background:#f0f9ff;}
     <div class="ach neg">ช่องว่าง -฿116,184/วัน</div>
     <div class="bar"><div class="bar-fill" style="width:72.5%;background:var(--green);"></div></div>
     <div style="margin-top:10px;border-top:1px dashed rgba(22,163,74,0.25);padding-top:6px;">
-      <div style="font-size:8px;font-weight:800;color:rgba(21,128,61,0.5);letter-spacing:.13em;text-align:right;margin-bottom:3px;">⭐ ON THE PROWL</div>
+      <div style="font-size:8.8px;font-weight:800;color:rgba(21,128,61,0.5);letter-spacing:.13em;text-align:right;margin-bottom:3px;">⭐ ON THE PROWL</div>
       <canvas id="catCanvas2" style="display:block;width:100%;height:30px;image-rendering:pixelated;cursor:default;"></canvas>
     </div>
   </div>
@@ -1077,15 +1079,6 @@ const PJ = [
     tasks:['⬜ สำรวจพื้นที่และออกแบบ Layout','⬜ จัดเตรียมสินค้า Hero ที่จะวาง','⬜ จัดซุ้มและตกแต่งป้าย','⬜ ถ่ายภาพ Before-After','⬜ วัดผล Traffic หลังจัด'],
     kpi:[{l:'🚶 Traffic Electronics',v:'—'},{l:'🛒 Basket Size',v:'—'},{l:'💰 ยอดขาย Electronics',v:'—'}],
     chartData:null, note:null },
-  { id:5, pc:'pc5', icon:'🎰', tag:'กิจกรรม', tc:'tag-event', status:'plan',
-    title:'Lucky Draw รายสัปดาห์',
-    desc:'จับรางวัล Lucky Draw ทุกสัปดาห์ กระตุ้นการซื้อซ้ำและสร้าง Excitement ในร้าน',
-    obj:'จัดกิจกรรม Lucky Draw รายสัปดาห์เพื่อกระตุ้นให้ลูกค้ากลับมาซื้อซ้ำ สร้างความตื่นเต้นและ Loyalty ผ่านโอกาสลุ้นรางวัลทุกสัปดาห์',
-    mechType:null, themeGrad:'linear-gradient(135deg,#14532d,#166534,#22c55e)',
-    start:null, end:null, owner:null, progress:0,
-    tasks:['⬜ กำหนดของรางวัลและเกณฑ์การร่วมกิจกรรม','⬜ ขออนุมัติงบและของรางวัล','⬜ จัดทำสื่อประชาสัมพันธ์','⬜ ดำเนินการจับรางวัลรายสัปดาห์','⬜ สรุปผลและประเมิน'],
-    kpi:[{l:'🎫 ผู้ร่วมกิจกรรม/สัปดาห์',v:'—'},{l:'🔁 Repeat Visit',v:'—'},{l:'📈 TC เพิ่ม',v:'—'}],
-    chartData:null, note:null },
   { id:3, pc:'pc3', icon:'🍽️', tag:'กิจกรรม', tc:'tag-event', status:'plan',
     title:'อังคารนี้มีจัดชิม',
     desc:'จัดกิจกรรมชิมสินค้าทุกวันอังคาร กระตุ้นการตัดสินใจซื้อ ณ จุดขาย',
@@ -1094,6 +1087,51 @@ const PJ = [
     start:null, end:null, owner:null, progress:0,
     tasks:['⬜ เลือกสินค้าที่จะนำมาชิมแต่ละอังคาร','⬜ ขออนุมัติงบและสินค้าตัวอย่าง','⬜ เตรียมอุปกรณ์และจัดบูธชิม','⬜ บันทึกจำนวนลูกค้าที่ชิมและซื้อ','⬜ สรุปผลรายสัปดาห์'],
     kpi:[{l:'🔄 Conversion Rate',v:'—'},{l:'📦 สินค้าที่ขายได้',v:'—'},{l:'🙋 ลูกค้าที่ชิม/สัปดาห์',v:'—'}],
+    chartData:null, note:null },
+  { id:7, pc:'pc7', icon:'📦', tag:'Stock', tc:'tag-display', status:'plan',
+    title:'Stock Ava',
+    desc:'ติดตามและจัดการสินค้า Available Stock ให้พร้อมขายตลอดเวลา ป้องกัน Out of Stock',
+    obj:'ตรวจสอบและจัดการระดับ Stock ให้เหมาะสม ป้องกัน Out of Stock สินค้าหลัก เพิ่ม On-shelf Availability และ Fill Rate',
+    mechType:null, themeGrad:'linear-gradient(135deg,#312e81,#4338ca,#6366f1)',
+    start:null, end:null, owner:null, progress:0,
+    tasks:['⬜ รายละเอียดจะถูกเพิ่มในภายหลัง'],
+    kpi:[{l:'📦 Stock Availability',v:'—'},{l:'🚫 Out of Stock',v:'—'},{l:'📊 Fill Rate',v:'—'}],
+    chartData:null, note:null },
+  { id:8, pc:'pc8', icon:'🆕', tag:'สินค้าใหม่', tc:'tag-food', status:'plan',
+    title:'สินค้าใหม่ สินค้ากระแส & สินค้าขายดีแต่ยังไม่มีขาย',
+    desc:'นำเข้าสินค้าใหม่และสินค้ากระแส รวมถึงสินค้าขายดีที่ยังไม่ได้ listing ในร้าน',
+    obj:'เพิ่มความหลากหลายของสินค้าใน Range ดึงลูกค้าใหม่และกระตุ้นยอดขายผ่านสินค้า Trending และ Hero Item ที่ขาดหาย',
+    mechType:null, themeGrad:'linear-gradient(135deg,#365314,#4d7c0f,#84cc16)',
+    start:null, end:null, owner:null, progress:0,
+    tasks:['⬜ รายละเอียดจะถูกเพิ่มในภายหลัง'],
+    kpi:[{l:'🆕 สินค้าใหม่ที่นำเข้า',v:'—'},{l:'📈 ยอดขายสินค้าใหม่',v:'—'},{l:'🛒 SKU ที่เพิ่ม',v:'—'}],
+    chartData:null, note:null },
+  { id:9, pc:'pc9', icon:'💎', tag:'Loyalty', tc:'tag-cust', status:'plan',
+    title:'ยกระดับประสบการณ์ลูกค้าด้วย Loyalty Program',
+    desc:'พัฒนาและยกระดับโปรแกรม Loyalty สร้าง Customer Retention และเพิ่ม Repeat Purchase',
+    obj:'สร้างความผูกพันระยะยาวกับลูกค้าผ่าน Loyalty Program ที่มีคุณค่า เพิ่ม CLV และ Repeat Visit ผ่านสิทธิพิเศษเฉพาะสมาชิก',
+    mechType:null, themeGrad:'linear-gradient(135deg,#881337,#be123c,#f43f5e)',
+    start:null, end:null, owner:null, progress:0,
+    tasks:['⬜ รายละเอียดจะถูกเพิ่มในภายหลัง'],
+    kpi:[{l:'💎 สมาชิก Active',v:'—'},{l:'🔁 Repeat Purchase Rate',v:'—'},{l:'📈 CLV',v:'—'}],
+    chartData:null, note:null },
+  { id:10, pc:'pc10', icon:'⚖️', tag:'Fresh Food', tc:'tag-season', status:'plan',
+    title:'ชั่งข้าว/ชั่งทุเรียน',
+    desc:'กิจกรรมชั่งน้ำหนักข้าวและทุเรียน สร้าง Experience และดึง Traffic กลุ่มสินค้า Fresh',
+    obj:'สร้างประสบการณ์ที่น่าสนใจกับสินค้า Fresh Category โดยเฉพาะข้าวและทุเรียน ดึง Traffic และเพิ่มยอดขาย Fresh Food',
+    mechType:null, themeGrad:'linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9)',
+    start:null, end:null, owner:null, progress:0,
+    tasks:['⬜ รายละเอียดจะถูกเพิ่มในภายหลัง'],
+    kpi:[{l:'⚖️ ลูกค้าร่วมกิจกรรม',v:'—'},{l:'🌾 ยอดขายข้าว/ทุเรียน',v:'—'},{l:'📈 Traffic Fresh',v:'—'}],
+    chartData:null, note:null },
+  { id:5, pc:'pc5', icon:'🎰', tag:'กิจกรรม', tc:'tag-event', status:'pending',
+    title:'Lucky Draw รายสัปดาห์',
+    desc:'จับรางวัล Lucky Draw ทุกสัปดาห์ กระตุ้นการซื้อซ้ำและสร้าง Excitement ในร้าน',
+    obj:'จัดกิจกรรม Lucky Draw รายสัปดาห์เพื่อกระตุ้นให้ลูกค้ากลับมาซื้อซ้ำ สร้างความตื่นเต้นและ Loyalty ผ่านโอกาสลุ้นรางวัลทุกสัปดาห์',
+    mechType:null, themeGrad:'linear-gradient(135deg,#14532d,#166534,#22c55e)',
+    start:null, end:null, owner:null, progress:0,
+    tasks:['⬜ กำหนดของรางวัลและเกณฑ์การร่วมกิจกรรม','⬜ ขออนุมัติงบและของรางวัล','⬜ จัดทำสื่อประชาสัมพันธ์','⬜ ดำเนินการจับรางวัลรายสัปดาห์','⬜ สรุปผลและประเมิน'],
+    kpi:[{l:'🎫 ผู้ร่วมกิจกรรม/สัปดาห์',v:'—'},{l:'🔁 Repeat Visit',v:'—'},{l:'📈 TC เพิ่ม',v:'—'}],
     chartData:null, note:null }
 ];
 
@@ -1105,8 +1143,8 @@ document.getElementById('projGrid').innerHTML = PJ.map(p=>`
     <div class="proj-title">${p.icon} ${p.title}</div>
     <div class="proj-desc">${p.desc}</div>
     <div class="proj-footer">
-      <span class="proj-status ${p.status==='active'?'st-active':'st-plan'}">
-        ${p.status==='active'?'🟢 กำลังดำเนินการ':'🟡 วางแผน'}
+      <span class="proj-status ${p.status==='active'?'st-active':p.status==='pending'?'st-pending':'st-plan'}">
+        ${p.status==='active'?'🟢 กำลังดำเนินการ':p.status==='pending'?'⏸️ Pending':'🟡 วางแผน'}
       </span>
       <span style="font-size:20px;color:#bae6fd;line-height:1;">›</span>
     </div>
@@ -1193,8 +1231,8 @@ function showDetail(id){
   document.getElementById('detailHdr').style.background = p.themeGrad || 'linear-gradient(135deg,#0c4a6e,#0891b2,#06b6d4)';
   document.getElementById('dBadges').innerHTML = `
     <span class="proj-tag ${p.tc}">${p.tag}</span>
-    <span class="proj-status ${p.status==='active'?'st-active':'st-plan'}" style="margin-top:0">
-      ${p.status==='active'?'🟢 กำลังดำเนินการ':'🟡 วางแผน'}</span>`;
+    <span class="proj-status ${p.status==='active'?'st-active':p.status==='pending'?'st-pending':'st-plan'}" style="margin-top:0">
+      ${p.status==='active'?'🟢 กำลังดำเนินการ':p.status==='pending'?'⏸️ Pending':'🟡 วางแผน'}</span>`;
   document.getElementById('dObj').textContent = p.obj;
 
   // Mechanic section

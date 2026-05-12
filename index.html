@@ -29,6 +29,54 @@ body{
 @keyframes floatUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes shimmer{0%{left:-100%}100%{left:200%}}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes authShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes authFadeIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes authFadeOut{from{opacity:1}to{opacity:0;pointer-events:none}}
+#authWall{
+  position:fixed;inset:0;z-index:99999;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#e0f2fe,#f0f9ff,#f0fdf4,#fef9c3,#fce7f3);
+  background-size:400% 400%;animation:hdrShift 14s ease infinite;
+}
+.auth-card{
+  background:#fff;border-radius:24px;padding:36px 32px 28px;
+  box-shadow:0 20px 60px rgba(8,145,178,.15),0 4px 16px rgba(0,0,0,.08);
+  width:min(340px,90vw);text-align:center;
+  animation:authFadeIn .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+.auth-cat{font-size:52px;line-height:1;margin-bottom:4px;display:block;}
+.auth-brand{font-size:13px;font-weight:700;color:var(--cyan-dark);letter-spacing:.08em;margin-bottom:2px;}
+.auth-sub{font-size:11px;color:var(--muted);margin-bottom:24px;}
+.auth-pin-row{display:flex;gap:10px;justify-content:center;margin-bottom:16px;}
+.auth-pin-box{
+  width:54px;height:62px;border:2px solid #bae6fd;border-radius:14px;
+  font-size:28px;font-weight:700;text-align:center;color:var(--cyan-dark);
+  font-family:'Prompt',sans-serif;background:#f0f9ff;
+  transition:border-color .2s,box-shadow .2s;outline:none;
+  -webkit-text-security:disc;
+}
+.auth-pin-box:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #bae6fd;}
+.auth-pin-box.filled{background:#e0f2fe;}
+.auth-btn{
+  width:100%;padding:13px;border:none;border-radius:14px;
+  background:linear-gradient(135deg,#0891b2,#0e7490);
+  color:#fff;font-size:15px;font-weight:700;font-family:'Prompt',sans-serif;
+  cursor:pointer;transition:opacity .2s,transform .1s;margin-bottom:10px;
+  letter-spacing:.03em;
+}
+.auth-btn:hover{opacity:.9;transform:translateY(-1px);}
+.auth-btn:active{transform:translateY(0);}
+.auth-err{
+  font-size:12px;color:#dc2626;min-height:18px;
+  transition:opacity .2s;font-weight:500;
+}
+.auth-err.shake{animation:authShake .4s ease;}
+.auth-logout{
+  font-size:11px;color:var(--muted);background:none;border:none;
+  cursor:pointer;text-decoration:underline;font-family:'Prompt',sans-serif;
+  padding:3px 8px;border-radius:8px;transition:background .2s;
+}
+.auth-logout:hover{background:#f1f5f9;}
 
 /* ── Header ── */
 .hdr{
@@ -299,6 +347,23 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
 </head>
 <body>
 
+<!-- Auth Wall -->
+<div id="authWall">
+  <div class="auth-card">
+    <span class="auth-cat">🐱</span>
+    <div class="auth-brand">Lotus's Go Fresh · FLP19</div>
+    <div class="auth-sub">ดำเนินสะดวก · B2C Dashboard</div>
+    <div class="auth-pin-row">
+      <input class="auth-pin-box" id="p0" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="pinInput(0)" onkeydown="pinKey(0,event)">
+      <input class="auth-pin-box" id="p1" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="pinInput(1)" onkeydown="pinKey(1,event)">
+      <input class="auth-pin-box" id="p2" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="pinInput(2)" onkeydown="pinKey(2,event)">
+      <input class="auth-pin-box" id="p3" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="pinInput(3)" onkeydown="pinKey(3,event)">
+    </div>
+    <button class="auth-btn" onclick="checkAuth()">🔓 เข้าสู่ระบบ</button>
+    <div class="auth-err" id="authErr"></div>
+  </div>
+</div>
+
 <!-- Header -->
 <div class="hdr">
   <div style="position:relative;z-index:1;">
@@ -314,6 +379,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
     </div>
   </div>
   <div class="hdr-deco">🛒✨🍈⭐</div>
+  <button class="auth-logout" onclick="authLogout()" style="position:absolute;top:10px;right:14px;color:rgba(255,255,255,.6);z-index:2;">🔒 ออกจากระบบ</button>
 </div>
 
 <div class="wrap">
@@ -1248,6 +1314,50 @@ new Chart(document.getElementById('mMargin'),{
 </div>
 
 <script>
+// ── Auth ──
+(function(){
+  if(localStorage.getItem('b2c_auth')!=='1') return;
+  document.getElementById('authWall').style.display='none';
+})();
+
+function pinInput(i){
+  const el=document.getElementById('p'+i);
+  el.value=el.value.replace(/\D/g,'').slice(-1);
+  el.classList.toggle('filled',el.value!=='');
+  if(el.value && i<3) document.getElementById('p'+(i+1)).focus();
+  if(i===3 && el.value) checkAuth();
+}
+function pinKey(i,e){
+  if(e.key==='Backspace'&&!document.getElementById('p'+i).value && i>0){
+    const prev=document.getElementById('p'+(i-1));
+    prev.value=''; prev.classList.remove('filled'); prev.focus();
+  }
+}
+function checkAuth(){
+  const pin=[0,1,2,3].map(i=>document.getElementById('p'+i).value).join('');
+  if(pin==='6435'){
+    localStorage.setItem('b2c_auth','1');
+    const w=document.getElementById('authWall');
+    w.style.animation='authFadeOut .4s ease forwards';
+    setTimeout(()=>w.style.display='none',400);
+  } else {
+    const err=document.getElementById('authErr');
+    err.textContent='รหัสไม่ถูกต้อง ลองใหม่อีกครั้ง 🙅';
+    err.classList.remove('shake');
+    void err.offsetWidth;
+    err.classList.add('shake');
+    [0,1,2,3].forEach(i=>{
+      const el=document.getElementById('p'+i);
+      el.value=''; el.classList.remove('filled');
+    });
+    document.getElementById('p0').focus();
+  }
+}
+function authLogout(){
+  localStorage.removeItem('b2c_auth');
+  location.reload();
+}
+
 let dChartTAInst = null, dChartTCInst = null;
 
 const HERO_ITEMS = [

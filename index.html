@@ -1233,6 +1233,10 @@ new Chart(document.getElementById('mMargin'),{
           <div class="d-sec-title" id="dTableTitle">📦 ตารางข้อมูล</div>
           <div id="dTableBody"></div>
         </div>
+        <div class="d-sec" id="dHeroSec" style="display:none;">
+          <div class="d-sec-title">📊 Hero Item Tracker — พ.ค. 2569</div>
+          <div id="dHeroBody"></div>
+        </div>
         <div class="d-sec">
           <div class="d-sec-title">📝 หมายเหตุ / บันทึก</div>
           <div class="note-box" id="dNote"></div>
@@ -1245,6 +1249,119 @@ new Chart(document.getElementById('mMargin'),{
 
 <script>
 let dChartTAInst = null, dChartTCInst = null;
+
+const HERO_ITEMS = [
+  {cat:'🍈 Durian', catKey:'durian', items:[
+    {no:'051332422', name:'ทุเรียนหมอนทอง กก.ละ'},
+    {no:'075641607', name:'ทุเรียนเบญจพรรณ ลูกละ'},
+    {no:'075586020', name:'ทุเรียนหมอนทอง(แกะเนื้อ) กก.ละ'},
+    {no:'075650078', name:'ทุเรียนหมอนทอง L ลูกละ'},
+    {no:'075650079', name:'ทุเรียนหมอนทอง M ลูกละ'},
+  ]},
+  {cat:'❄️ Frozen Dessert', catKey:'dessert', items:[
+    {no:'075701393', name:'ซีพี ลอดช่องน้ำกะทิ 640 กรัม'},
+    {no:'075701394', name:'ซีพี ปลากริมไข่เต่า 640 กรัม'},
+    {no:'075701396', name:'ซีพี ทับทิมกรอบมะพร้าวอ่อน 640 กรัม'},
+    {no:'075701398', name:'ซีพี บัวลอยยอดไส้คัสตาร์ดไข่เค็ม 400 กรัม'},
+    {no:'075701395', name:'ซีพี บัวลอยงามีมะพร้าวอ่อน 640 กรัม'},
+    {no:'075701397', name:'ซีพี บัวลอยยอดไส้คัสตาร์ด 400 กรัม'},
+  ]},
+  {cat:'🍗 Frozen Meat & PCF', catKey:'meat', items:[
+    {no:'051052534', name:'ซีพี นักเก็ตไก่คลาสสิคแช่แข็ง 1000ก.'},
+    {no:'051052540', name:'ซีพี ไก่กรอบแช่แข็ง 800 กรัม'},
+    {no:'075696531', name:'ซีพี ไก่ทอดคาราเกะหมะ 1 กิโลกรัม'},
+    {no:'051052557', name:'ซีพี นักเก็ตสติ๊กไก่ข้าวโพดแช่แข็ง 1กก.'},
+    {no:'075605396', name:'ซีพี ชิคเก้นริง 1000 กรัม'},
+  ]},
+];
+const HERO_DAYS = Array.from({length:21}, (_,i)=>i+11);
+const HERO_CS = {
+  durian:  {hd:'#166534', bg:'#f0fdf4', badge:'#bbf7d0', txt:'#14532d'},
+  dessert: {hd:'#1e40af', bg:'#eff6ff', badge:'#bfdbfe', txt:'#1e3a8a'},
+  meat:    {hd:'#6d28d9', bg:'#faf5ff', badge:'#ddd6fe', txt:'#5b21b6'},
+};
+
+function heroTrackerHTML(){
+  const saved = JSON.parse(localStorage.getItem('heroSales')||'{}');
+  let html = `<div style="font-family:'Prompt',sans-serif;">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+      <span style="font-size:12px;color:#64748b;background:#f1f5f9;padding:4px 10px;border-radius:20px;">💾 บันทึกในเครื่องอัตโนมัติ (localStorage)</span>
+      <button onclick="clearHeroSales()" style="font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid #fca5a5;background:#fff;color:#dc2626;cursor:pointer;font-family:'Prompt',sans-serif;">🗑️ ล้างข้อมูลทั้งหมด</button>
+    </div>`;
+
+  for(const {cat, catKey, items} of HERO_ITEMS){
+    const cs = HERO_CS[catKey];
+    const catTotal = items.reduce((s,{no})=>
+      s + HERO_DAYS.reduce((ds,d)=>ds+(Number(saved[no]?.[d])||0), 0), 0);
+    html += `<div style="margin-bottom:18px;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+      <div style="background:${cs.hd};color:#fff;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;font-size:13px;">${cat}</span>
+        <span style="font-size:12px;opacity:.85;">รวม <b>${catTotal.toLocaleString()}</b> ชิ้น</span>
+      </div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:600px;">
+        <thead>
+          <tr style="background:${cs.bg};">
+            <th style="position:sticky;left:0;background:${cs.bg};z-index:2;padding:6px 10px;text-align:left;min-width:170px;border-bottom:1.5px solid ${cs.badge};white-space:nowrap;font-size:11px;">ชื่อสินค้า / รหัส</th>
+            ${HERO_DAYS.map(d=>`<th style="padding:5px 2px;text-align:center;min-width:36px;border-bottom:1.5px solid ${cs.badge};color:${cs.hd};font-size:10px;">${d}</th>`).join('')}
+            <th style="padding:5px 8px;text-align:center;background:${cs.badge};color:${cs.txt};font-weight:700;min-width:48px;border-bottom:1.5px solid ${cs.badge};font-size:11px;">รวม</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    for(const {no, name} of items){
+      const rowTotal = HERO_DAYS.reduce((s,d)=>s+(Number(saved[no]?.[d])||0), 0);
+      html += `<tr style="border-bottom:1px solid #f1f5f9;">
+        <td style="position:sticky;left:0;background:#fff;z-index:1;padding:5px 10px;white-space:nowrap;">
+          <div style="font-size:11px;font-weight:600;color:#1e293b;line-height:1.3;">${name}</div>
+          <div style="font-size:9px;color:#94a3b8;margin-top:1px;">${no}</div>
+        </td>
+        ${HERO_DAYS.map(d=>{
+          const v = saved[no]?.[d]||'';
+          return `<td style="padding:2px;text-align:center;">
+            <input type="number" id="h_${no}_${d}" value="${v}" min="0"
+              style="width:34px;height:26px;border:1px solid ${v?cs.badge:'#e2e8f0'};border-radius:5px;text-align:center;padding:0;font-size:11px;font-family:'Prompt',sans-serif;background:${v?cs.bg:'#fff'};color:${v?cs.txt:'#94a3b8'};outline:none;"
+              oninput="saveHero('${no}',${d},'${catKey}',this)"
+              onfocus="this.style.borderColor='${cs.hd}';this.style.boxShadow='0 0 0 2px ${cs.badge}'"
+              onblur="this.style.borderColor=this.value?'${cs.badge}':'#e2e8f0';this.style.boxShadow='none'">
+          </td>`;
+        }).join('')}
+        <td id="htot_${no}" style="text-align:center;font-weight:700;color:${rowTotal?cs.txt:'#cbd5e1'};background:${rowTotal?cs.badge:'#f8fafc'};font-size:12px;transition:all .2s;">
+          ${rowTotal||'—'}
+        </td>
+      </tr>`;
+    }
+    html += `</tbody></table></div></div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function saveHero(no, day, catKey, el){
+  const v = el.value !== '' ? parseInt(el.value) : null;
+  const saved = JSON.parse(localStorage.getItem('heroSales')||'{}');
+  if(!saved[no]) saved[no] = {};
+  if(v != null && !isNaN(v) && v >= 0) saved[no][day] = v;
+  else { delete saved[no][day]; if(!Object.keys(saved[no]).length) delete saved[no]; }
+  localStorage.setItem('heroSales', JSON.stringify(saved));
+  const cs = HERO_CS[catKey];
+  const rowTotal = HERO_DAYS.reduce((s,d)=>s+(Number(saved[no]?.[d])||0), 0);
+  const totEl = document.getElementById('htot_'+no);
+  if(totEl){
+    totEl.textContent = rowTotal || '—';
+    totEl.style.color = rowTotal ? cs.txt : '#cbd5e1';
+    totEl.style.background = rowTotal ? cs.badge : '#f8fafc';
+  }
+  el.style.background = (v != null && v >= 0 && !isNaN(v)) ? cs.bg : '#fff';
+  el.style.color = (v != null && v >= 0 && !isNaN(v)) ? cs.txt : '#94a3b8';
+  el.style.borderColor = (v != null && v >= 0 && !isNaN(v)) ? cs.badge : '#e2e8f0';
+}
+
+function clearHeroSales(){
+  if(!confirm('ลบข้อมูล Hero Item ทั้งหมดใช่ไหม?')) return;
+  localStorage.removeItem('heroSales');
+  document.getElementById('dHeroBody').innerHTML = heroTrackerHTML();
+}
 
 function durCell(v){
   return v>0
@@ -1383,8 +1500,8 @@ const PJ = [
       targets:[50,50,50]},
     note:'💡 เหตุผลที่เลือก 4 กิจกรรมนี้\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n• 🎵 เพลงในร้าน → ลดความเครียดขณะซื้อของ ทำให้ลูกค้าอยู่ในร้านนานขึ้น เพิ่ม Dwell Time → Basket Size สูงขึ้น\n• 🌏 ป้ายหลายภาษา → ดำเนินสะดวกมีแรงงานต่างชาติจำนวนมาก ป้ายภาษาของพวกเขา = สร้าง Inclusivity + Word of Mouth\n• 💧 น้ำดื่มฟรี → ต้นทุนต่ำ ผลลัพธ์สูง ลูกค้ารู้สึก "ร้านนี้ดูแล" + QR Code ณ จุดนั้นเพิ่มโอกาสสมัครสมาชิกได้ดีที่สุด\n• 🪑 มุมพัก → ลูกค้าผู้สูงอายุและครอบครัวที่มาเป็นกลุ่ม มีที่นั่งรอ = ลดการรีบออกจากร้าน ทำให้สมาชิกในกลุ่มมีเวลาซื้อมากขึ้น\n\n🎯 KPI ที่ออกแบบ\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n💎 สมาชิกใหม่/เดือน — เป้า 200 คน (≈ 50/สัปดาห์ หรือ ~7 คน/วัน)\n   วิธีวัด: นับจากระบบ My Lotus\'s ที่ลงทะเบียนสาขา FLP19\n\n🔁 Repeat Visit Rate — เป้า เพิ่มขึ้น +15% จาก Baseline\n   วิธีวัด: % ลูกค้าที่มาซื้อ ≥ 2 ครั้งใน 30 วัน เทียบกับเดือนก่อน\n\n😊 Customer Satisfaction Score — เป้า ≥ 4.5 / 5.0\n   วิธีวัด: Google Form Feedback ผ่าน QR Code ที่มุมพัก + จุดน้ำ' },
   { id:10, pc:'pc10', icon:'🍈', tag:'Fresh Food', tc:'tag-season', status:'active',
-    title:'แผนการขายทุเรียน',
-    desc:'Mister & Miss Durian + ชั่งทุเรียน — สร้าง Experience ดึง Traffic เพิ่มยอดขาย Fresh & Frozen ช่วง Peak Season',
+    title:'แผนการขายทุเรียนและ Hero Item',
+    desc:'Mister & Miss Durian + ชั่งทุเรียน + ติดตาม Hero Items (Frozen Dessert & Meat) — สร้าง Experience ดึง Traffic เพิ่มยอดขาย Fresh & Frozen ช่วง Peak Season',
     obj:'โครงการแบ่งเป็น 2 กิจกรรม:\n(1) Mister & Miss Durian — บริการคัด แกะ แพ็ค ทุเรียน รวมถึงแบบแกะพร้อมทานเพื่อความสะดวกแก่ลูกค้า\n(2) ชั่งทุเรียน — ลูกค้าทายน้ำหนักทุเรียนแบบไม่สัมผัส บวกลบไม่เกิน 10 กรัม = รับฟรี!\n\nเงื่อนไขที่ 1: ซื้อสินค้าครบ 400 บาทขึ้นไป → เลือกรับแสตมป์สะสม หรือเล่นชั่งทุเรียน ทายถูกรับฟรี ทายผิดไม่เสียค่าทุเรียน\n\nเงื่อนไขที่ 2: ซื้อสินค้าต่ำกว่า 400 บาท → เล่นได้ ทายถูกรับฟรี ทายผิดต้องซื้อทุเรียนแพ็คที่หยิบ\n\n🗓️ จัดกิจกรรมเฉพาะ ศุกร์ เสาร์ อาทิตย์',
     mechType:'durian', themeGrad:'linear-gradient(135deg,#365314,#4d7c0f,#84cc16)',
     start:'11/05/2569', end:'31/05/2569', owner:'👩‍💼 มะปราง เจ้าขา', progress:15, progressLabel:'🟡 On Progress',
@@ -1399,6 +1516,7 @@ const PJ = [
     },
     tableTitle:'📦 แผนส่งทุเรียนหมอนทอง กก.ละ — WK20 (11–17 พ.ค. 2569)',
     tableHtml:durianDeliveryTable,
+    heroTracker:true,
     note:'📊 การวิเคราะห์ตลาดทุเรียนและคู่แข่ง\n🌏 ภาพรวมตลาด (Peak Season พ.ค.–ก.ค.)\n• ทุเรียนหมอนทองเป็น Hero Item Tier 1 ราคาปลีก 150–300 ฿/กก.\n• ผลผลิตสูงสุดช่วง พ.ค.–ก.ค. ราคาลง แต่ Demand พุ่งพร้อมกัน\n• กลุ่มลูกค้าหลัก: ครอบครัว, คนรักทุเรียน, ซื้อเป็นของฝาก\n• Trend: ทุเรียนแกะพร้อมทาน (Ready-to-Eat) เติบโตสูงในกลุ่ม Urban\n\n🏪 คู่แข่งสำคัญ\n• ตลาดสด/แผงข้างทาง: ถูกกว่า 10–20% แต่ไม่มี Service ไม่มี Experience\n• Makro / BigC: แกะพร้อมทาน ราคาแข่งกัน Volume สูง\n• Tops / Villa Market: Premium Durian ราคาสูงกว่า ลูกค้า Premium\n• Online (Grab/Shopee): สะดวก ส่วนแบ่งเพิ่มทุกปี แต่ค่าส่งสูง\n• จุดแข็งของเรา: Location + Member Base + Activity Experience\n\n💡 แนวทางปรับปรุงกิจกรรม\n1. 📱 ถ่าย Reel/TikTok ชั่งทุเรียน "ทายถูกรับฟรี!" แชร์ก่อน ศ–อา\n2. 🍚 Bundle: ทุเรียน + ข้าวเหนียวมูน + Frozen Dessert = Basket ใหญ่ขึ้น\n3. ⏰ Time Slot: 10:00–12:00 และ 15:00–18:00 ดึง Traffic ช่วง Prime Time\n4. 📦 Stock Alert: สั่งเพิ่มทันทีเมื่อสต็อกเหลือ < 30%\n5. 🏆 Leaderboard: แจ้งยอดเทียบ 7 สาขาทุกวัน สร้าง Motivation' },
   { id:5, pc:'pc5', icon:'🎰', tag:'กิจกรรม', tc:'tag-event', status:'pending',
     title:'Lucky Draw รายสัปดาห์',
@@ -1685,6 +1803,15 @@ function showDetail(id){
     document.getElementById('dTableBody').innerHTML = p.tableHtml;
   } else {
     tableSec.style.display = 'none';
+  }
+
+  // Hero tracker section
+  const heroSec = document.getElementById('dHeroSec');
+  if(p.heroTracker){
+    heroSec.style.display = 'block';
+    document.getElementById('dHeroBody').innerHTML = heroTrackerHTML();
+  } else {
+    heroSec.style.display = 'none';
   }
 
   document.getElementById('dNote').innerHTML = (p.note||'📝 ยังไม่มีบันทึก').replace(/\n/g,'<br>');

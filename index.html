@@ -1216,7 +1216,11 @@ new Chart(document.getElementById('mMargin'),{
           <div class="d-sec-title" id="dChartTitle">📈 TA & TC รายวัน — พ.ค. (vs เป้าหมาย)</div>
           <div style="font-size:11px;color:#94a3b8;margin-bottom:8px;">🔵 จริง &nbsp;|&nbsp; ‐ ‐ เป้าหมาย</div>
           <div class="dchart-wrap"><canvas id="dChartTA"></canvas></div>
-          <div style="margin-top:12px;" class="dchart-wrap"><canvas id="dChartTC"></canvas></div>
+          <div style="margin-top:12px;" class="dchart-wrap" id="dChartTCWrap"><canvas id="dChartTC"></canvas></div>
+        </div>
+        <div class="d-sec" id="dTableSec" style="display:none;">
+          <div class="d-sec-title" id="dTableTitle">📦 ตารางข้อมูล</div>
+          <div id="dTableBody"></div>
         </div>
         <div class="d-sec">
           <div class="d-sec-title">📝 หมายเหตุ / บันทึก</div>
@@ -1230,6 +1234,41 @@ new Chart(document.getElementById('mMargin'),{
 
 <script>
 let dChartTAInst = null, dChartTCInst = null;
+
+function durCell(v){
+  return v>0
+    ? `<td class="tc" style="background:#dcfce7;color:#15803d;font-weight:700;">${v}</td>`
+    : `<td class="tc" style="color:#cbd5e1;">—</td>`;
+}
+const durianDeliveryTable = (()=>{
+  const days=[{d:'11/5',w:'อา'},{d:'12/5',w:'จ'},{d:'13/5',w:'อ'},{d:'14/5',w:'พ'},{d:'15/5',w:'พฤ'},{d:'16/5',w:'ศ'},{d:'17/5',w:'ส'}];
+  const branches=[
+    {code:'6435',name:'ดำเนินสะดวก',mine:true, data:[1,0,2,2,0,2,1]},
+    {code:'6439',name:'เชิงทะเล',   mine:false,data:[7,0,6,7,0,9,0]},
+    {code:'6448',name:'เจ้าฟ้า ภูเก็ต',mine:false,data:[3,0,3,2,0,3,0]},
+    {code:'6455',name:'ลำลูกกา คลอง 4',mine:false,data:[1,0,2,0,2,2,1]},
+    {code:'6482',name:'บ้านนา นครนายก',mine:false,data:[0,5,0,0,5,0,6]},
+    {code:'6586',name:'ปงสนุก ลำปาง',mine:false,data:[7,0,6,6,0,9,0]},
+    {code:'6660',name:'โอเอซิส พัฒนาการ30',mine:false,data:[3,0,0,3,0,3,0]},
+  ];
+  const hdStyle='style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#166534;font-size:10px;font-weight:800;padding:10px 8px;text-align:center;border-bottom:2px solid #86efac;"';
+  const hdStyleL='style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#166534;font-size:10px;font-weight:800;padding:10px 12px;border-bottom:2px solid #86efac;min-width:150px;"';
+  let hdr=`<tr><th ${hdStyleL}>🏪 สาขา</th>`;
+  days.forEach(d=>{ hdr+=`<th ${hdStyle}>${d.w}<br><span style="font-size:9px;font-weight:500;color:#4ade80;">${d.d}</span></th>`; });
+  hdr+=`<th ${hdStyle} style="background:linear-gradient(135deg,#bbf7d0,#86efac);">รวม</th></tr>`;
+  let rows='';
+  branches.forEach(b=>{
+    const tot=b.data.reduce((a,c)=>a+c,0);
+    const bg=b.mine?'background:linear-gradient(90deg,#fefce8,#fef9c3);':'';
+    const nameStyle=b.mine?'font-weight:800;color:#0c4a6e;':'font-weight:500;color:#334155;';
+    rows+=`<tr style="${bg}"><td style="padding:9px 12px;border-bottom:1px solid #f0fdf4;${nameStyle}">`;
+    if(b.mine) rows+=`<span style="background:#fbbf24;color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:8px;margin-right:5px;">ฐานเรา</span>`;
+    rows+=`${b.code} ${b.name}</td>`;
+    b.data.forEach(v=>{ rows+=durCell(v); });
+    rows+=`<td class="tc" style="background:${b.mine?'#fde68a;color:#92400e':'#f0fdf4;color:#166534'};font-weight:800;font-size:13px;border-bottom:1px solid #f0fdf4;">${tot}</td></tr>`;
+  });
+  return `<div style="overflow-x:auto;border-radius:12px;border:1px solid #bbf7d0;overflow:hidden;"><table style="font-size:12px;width:100%;border-collapse:collapse;"><thead>${hdr}</thead><tbody>${rows}</tbody></table></div>`;
+})();
 
 const PJ = [
   { id:1, pc:'pc1', icon:'🎟️', tag:'โปรโมชั่น', tc:'tag-promo', status:'active',
@@ -1341,16 +1380,15 @@ const PJ = [
     tasks:['🟡 จัดเตรียมอุปกรณ์ คัด แกะ แพ็ค และตาชั่งสำหรับกิจกรรม','⬜ ติดตามแผนส่งทุเรียนรายสัปดาห์ (WK20–WK22)','⬜ จัดกิจกรรมชั่งทุเรียน ศ–อา อย่างต่อเนื่อง','⬜ ถ่ายคลิป/Reel กิจกรรม แชร์ผ่าน LINE ชุมชน','⬜ Cross-sell Frozen Dessert + PCF ควบคู่กับทุเรียน','⬜ บันทึกจำนวนลูกค้าร่วมกิจกรรมทุกวัน','⬜ ติดตามยอดขายเทียบเป้า รายสัปดาห์'],
     kpi:[{l:'🍈 ยอดทุเรียน (202605)',v:'197,635 ฿'},{l:'❄️ Frozen+PCF',v:'50,000 ฿/เดือน'},{l:'🙋 ผู้ร่วมกิจกรรม',v:'100 คน/วัน'}],
     chartData:{
-      type:'durian',
-      title:'🍈 เป้าหมายยอดขายทุเรียน พ.ค. (202605) — 7 สาขา',
-      branchLabels:['6435\nดำเนินฯ','6439\nเชิงทะเล','6448\nเจ้าฟ้า','6455\nลำลูกกา4','6482\nบ้านนา','6586\nปงสนุก','6660\nพัฒนาการ30'],
-      branchTargets:[197635,334427,294589,443752,433017,345658,208231],
-      branchActual:[null,null,null,null,null,null,null],
-      deliveryTitle:'📦 แผนส่ง WK20 (11–17 พ.ค.) — สาขา 6435 ดำเนินสะดวก',
-      deliveryLabels:['11/5(อา)','12/5(จ)','13/5(อ)','14/5(พ)','15/5(พฤ)','16/5(ศ)','17/5(ส)'],
-      deliveryData:[1,0,2,2,0,2,1]
+      type:'durian2',
+      title:'🍈 ยอดขายทุเรียนรายวัน พ.ค. 2569 — สาขา 6435 ดำเนินสะดวก (vs เป้า)',
+      labels:['11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31'],
+      actual:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+      dailyTarget:6375
     },
-    note:'📦 แผนส่งทุเรียนหมอนทอง กก.ละ WK20 (11–17 พ.ค. 2569)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nสาขา                  11  12  13  14  15  16  17  รวม\n6435 ดำเนินสะดวก        1   0   2   2   0   2   1    8\n6439 เชิงทะเล           7   0   6   7   0   9   0   29\n6448 เจ้าฟ้า ภูเก็ต     3   0   3   2   0   3   0   11\n6455 ลำลูกกา คลอง 4     1   0   2   0   2   2   1    8\n6482 บ้านนา นครนายก     0   5   0   0   5   0   6   16\n6586 ปงสนุก ลำปาง       7   0   6   6   0   9   0   28\n6660 โอเอซิส พัฒนาการ30  3   0   0   3   0   3   0    9\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n📊 การวิเคราะห์ตลาดทุเรียนและคู่แข่ง\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🌏 ภาพรวมตลาด (Peak Season พ.ค.–ก.ค.)\n• ทุเรียนหมอนทองเป็น Hero Item Tier 1 ราคาปลีก 150–300 ฿/กก.\n• ผลผลิตสูงสุดช่วง พ.ค.–ก.ค. ราคาจะลดลงแต่ Demand พุ่งพร้อมกัน\n• กลุ่มลูกค้าหลัก: ครอบครัว, คนรักทุเรียน, ซื้อเป็นของฝาก\n• Trend: ทุเรียนแกะพร้อมทาน (Ready-to-Eat) เติบโตสูงในกลุ่ม Urban\n\n🏪 คู่แข่งสำคัญ\n• ตลาดสด/แผงข้างทาง: ถูกกว่า 10–20% แต่ไม่มี Service, ไม่มี Experience\n• Makro / BigC: ทุเรียนแกะพร้อมทาน ราคาแข่งกัน, Volume สูง\n• Tops / Villa Market: Premium Durian, ราคาสูงกว่าเรา, ลูกค้า Premium\n• Online (Grab/Shopee Food): สะดวก ส่วนแบ่งเพิ่มขึ้นทุกปี แต่ค่าส่งสูง\n• จุดแข็งของเรา: Location + My Lotus\'s Member Base + Activity Experience\n\n💡 แนวทางปรับปรุงกิจกรรม\n1. 📱 Viral Content: ถ่าย Reel/TikTok กิจกรรมชั่งทุเรียน "ทายน้ำหนักแล้วได้ฟรี!" แชร์ก่อน ศ–อา\n2. 🍚 Cross-sell Bundle: ทุเรียน + ข้าวเหนียวมูน + ซีพี Frozen Dessert = เพิ่ม Basket Size\n3. ⏰ จัด Time Slot: 10:00–12:00 น. และ 15:00–18:00 น. เพื่อดึง Traffic ช่วง Prime Time\n4. 🎯 Target Weekend: โฟกัสลูกค้าครอบครัว ส.–อ. ซึ่งมี Dwell Time สูงกว่าวันธรรมดา\n5. 📦 Stock Alert: สั่งเพิ่มทันทีเมื่อสต็อกเหลือ < 30% เพื่อไม่ให้ขาดระหว่างกิจกรรม\n6. 🏆 Leaderboard: แจ้งผลยอดขายทุเรียนเทียบ 7 สาขาทุกวัน สร้าง Motivation ทีม' },
+    tableTitle:'📦 แผนส่งทุเรียนหมอนทอง กก.ละ — WK20 (11–17 พ.ค. 2569)',
+    tableHtml:durianDeliveryTable,
+    note:'📊 การวิเคราะห์ตลาดทุเรียนและคู่แข่ง\n🌏 ภาพรวมตลาด (Peak Season พ.ค.–ก.ค.)\n• ทุเรียนหมอนทองเป็น Hero Item Tier 1 ราคาปลีก 150–300 ฿/กก.\n• ผลผลิตสูงสุดช่วง พ.ค.–ก.ค. ราคาลง แต่ Demand พุ่งพร้อมกัน\n• กลุ่มลูกค้าหลัก: ครอบครัว, คนรักทุเรียน, ซื้อเป็นของฝาก\n• Trend: ทุเรียนแกะพร้อมทาน (Ready-to-Eat) เติบโตสูงในกลุ่ม Urban\n\n🏪 คู่แข่งสำคัญ\n• ตลาดสด/แผงข้างทาง: ถูกกว่า 10–20% แต่ไม่มี Service ไม่มี Experience\n• Makro / BigC: แกะพร้อมทาน ราคาแข่งกัน Volume สูง\n• Tops / Villa Market: Premium Durian ราคาสูงกว่า ลูกค้า Premium\n• Online (Grab/Shopee): สะดวก ส่วนแบ่งเพิ่มทุกปี แต่ค่าส่งสูง\n• จุดแข็งของเรา: Location + Member Base + Activity Experience\n\n💡 แนวทางปรับปรุงกิจกรรม\n1. 📱 ถ่าย Reel/TikTok ชั่งทุเรียน "ทายถูกรับฟรี!" แชร์ก่อน ศ–อา\n2. 🍚 Bundle: ทุเรียน + ข้าวเหนียวมูน + Frozen Dessert = Basket ใหญ่ขึ้น\n3. ⏰ Time Slot: 10:00–12:00 และ 15:00–18:00 ดึง Traffic ช่วง Prime Time\n4. 📦 Stock Alert: สั่งเพิ่มทันทีเมื่อสต็อกเหลือ < 30%\n5. 🏆 Leaderboard: แจ้งยอดเทียบ 7 สาขาทุกวัน สร้าง Motivation' },
   { id:5, pc:'pc5', icon:'🎰', tag:'กิจกรรม', tc:'tag-event', status:'pending',
     title:'Lucky Draw รายสัปดาห์',
     desc:'จับรางวัล Lucky Draw ทุกสัปดาห์ กระตุ้นการซื้อซ้ำและสร้าง Excitement ในร้าน',
@@ -1583,6 +1621,29 @@ function showDetail(id){
           scales:{y:{beginAtZero:true, ticks:{stepSize:1}, grid:{color:'rgba(0,0,0,.05)'}},
             x:{grid:{display:false}, ticks:{font:{size:10}}}}}
       });
+    } else if(cd.type === 'durian2'){
+      document.getElementById('dChartTCWrap').style.display = 'none';
+      const ctx2 = document.getElementById('dChartTA').getContext('2d');
+      if(dChartTAInst) dChartTAInst.destroy();
+      const tgt = Array(cd.labels.length).fill(cd.dailyTarget);
+      dChartTAInst = new Chart(ctx2,{
+        type:'bar',
+        data:{labels:cd.labels, datasets:[
+          {label:'📊 ยอดขายจริง (฿)', data:cd.actual,
+           backgroundColor:'rgba(101,163,13,0.75)', borderRadius:5, borderWidth:0, order:2},
+          {label:'🎯 เป้ารายวัน', data:tgt, type:'line',
+           borderColor:'#f97316', borderDash:[5,4], borderWidth:2.5,
+           pointRadius:0, fill:false, order:1}
+        ]},
+        options:{responsive:true, maintainAspectRatio:false,
+          plugins:{
+            legend:{position:'bottom', labels:{font:{size:11},boxWidth:12}},
+            tooltip:{callbacks:{label:c=>c.raw!=null?'฿'+c.raw.toLocaleString():'ยังไม่มีข้อมูล'}},
+            datalabels:{display:false}},
+          scales:{
+            y:{ticks:{callback:v=>'฿'+(v/1000).toFixed(1)+'K'}, grid:{color:'rgba(0,0,0,.05)'},beginAtZero:true},
+            x:{grid:{display:false}, ticks:{font:{size:9},maxRotation:0}}}}
+      });
     } else if(cd.type === 'items'){
       document.getElementById('dChartTC').parentElement.style.display = 'none';
       const hasData = cd.actual && cd.actual.some(v=>v!==null&&v!==undefined);
@@ -1605,7 +1666,17 @@ function showDetail(id){
     chartSec.style.display = 'none';
   }
 
-  document.getElementById('dNote').textContent = p.note || '📝 ยังไม่มีบันทึก';
+  // Table section
+  const tableSec = document.getElementById('dTableSec');
+  if(p.tableHtml){
+    tableSec.style.display = 'block';
+    document.getElementById('dTableTitle').innerHTML = p.tableTitle || '📦 ตารางข้อมูล';
+    document.getElementById('dTableBody').innerHTML = p.tableHtml;
+  } else {
+    tableSec.style.display = 'none';
+  }
+
+  document.getElementById('dNote').innerHTML = (p.note||'📝 ยังไม่มีบันทึก').replace(/\n/g,'<br>');
   document.getElementById('vList').style.display   = 'none';
   document.getElementById('vDetail').style.display = 'block';
   document.getElementById('projModal').scrollTop = 0;

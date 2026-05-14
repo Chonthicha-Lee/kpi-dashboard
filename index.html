@@ -355,6 +355,30 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
 .proj-btn-cat{display:block;image-rendering:pixelated;flex-shrink:0;}
 .proj-btn-label{display:flex;flex-direction:column;line-height:1.2;}
 .proj-btn-sub{font-size:9px;font-weight:500;opacity:.75;letter-spacing:.06em;margin-top:1px;}
+/* Daily Action Button */
+.day-btn{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#6d28d9,#a855f7,#ec4899);
+  color:#fff;border:none;padding:10px 22px 10px 14px;
+  border-radius:28px;font-size:13px;font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  box-shadow:0 4px 18px rgba(168,85,247,.45),0 0 0 2px rgba(255,255,255,.18) inset;
+  letter-spacing:.03em;transition:transform .15s,box-shadow .15s;
+}
+.day-btn:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(168,85,247,.6),0 0 0 2px rgba(255,255,255,.25) inset;}
+.day-btn:active{transform:translateY(0);}
+.day-btn-emoji{font-size:20px;line-height:1;animation:kidsBounce 1.8s ease-in-out infinite;}
+@keyframes kidsBounce{0%,100%{transform:translateY(0) rotate(0deg);}30%{transform:translateY(-4px) rotate(-5deg);}60%{transform:translateY(-2px) rotate(4deg);}}
+/* Daily Modal */
+.day-slot{border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.day-slot-title{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.day-task{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(0,0,0,.05);font-size:12.5px;line-height:1.5;}
+.day-task:last-child{border-bottom:none;}
+.day-task-check{width:18px;height:18px;border-radius:5px;border:2px solid currentColor;flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:background .15s;}
+.day-task-check.done{background:currentColor;}
+.day-task-check.done::after{content:'✓';color:#fff;font-weight:900;}
+.day-task-text{flex:1;}
+.day-task-tag{display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px;vertical-align:middle;}
 /* Mechanic box */
 .mech-box{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:2px solid #fde68a;border-radius:14px;padding:16px 18px;}
 .mech-period{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;padding:8px 14px;font-size:13px;color:#c2410c;font-weight:700;text-align:center;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px;}
@@ -458,7 +482,15 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
 <div class="wrap">
 
 <!-- ══ Project Button ══ -->
-<div style="margin-bottom:14px;display:flex;justify-content:flex-end;">
+<div style="margin-bottom:14px;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;">
+  <button class="day-btn" onclick="document.getElementById('dayModal').classList.add('open')">
+    <span class="day-btn-emoji">👧</span>
+    <span class="day-btn-emoji" style="animation-delay:.3s">🧒</span>
+    <span class="proj-btn-label">
+      <span>วันๆ น้องทำอะไรบ้าง</span>
+      <span class="proj-btn-sub">📅 Daily Action Plan</span>
+    </span>
+  </button>
   <button class="proj-btn" id="projOpenBtn" onclick="document.getElementById('projModal').classList.add('open')">
     <canvas class="proj-btn-cat" id="catBtn" width="22" height="22"></canvas>
     <span class="proj-btn-label">
@@ -1315,6 +1347,102 @@ new Chart(document.getElementById('mMargin'),{
 
 </script>
 
+<!-- ══ Modal Daily Action Plan ══ -->
+<div class="modal-overlay" id="dayModal" onclick="if(event.target===this)closeDayModal()">
+  <div class="modal-box" style="max-width:540px;">
+
+    <div class="modal-hdr" style="background:linear-gradient(135deg,#4c1d95,#7c3aed,#db2777);">
+      <div>
+        <h2 style="font-size:17px;margin:0 0 2px;">👧🧒 วันๆ น้องทำอะไรบ้าง?</h2>
+        <div class="sub" style="opacity:.85;">Daily Action Plan — ทีมมะปราง FLP19</div>
+      </div>
+      <button class="modal-close" onclick="closeDayModal()">✕</button>
+    </div>
+
+    <div class="modal-body" style="padding:16px;">
+
+      <!-- Notice -->
+      <div style="background:#fdf4ff;border:1.5px dashed #d946ef;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#7e22ce;">
+        ✏️ <b>โครงร่างนี้รอมะปรางกรอกรายละเอียด</b> — คลิก checkbox ✓ เพื่อ mark งานที่ทำแล้วได้เลยจ้า 🌟
+      </div>
+
+      <!-- 🌅 ช่วงเช้า -->
+      <div class="day-slot" style="background:#fef3c7;color:#92400e;">
+        <div class="day-slot-title" style="color:#b45309;">🌅 ช่วงเช้า (ก่อน 10:00 น.)</div>
+        <div class="day-task" style="color:#78350f;">
+          <div class="day-task-check" style="color:#b45309;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">📋 เช็ค Dashboard ยอดขายเมื่อวาน — รับรู้ตัวเลขก่อนเริ่มวัน<span class="day-task-tag" style="background:#fde68a;color:#92400e;">ประจำวัน</span></div>
+        </div>
+        <div class="day-task" style="color:#78350f;">
+          <div class="day-task-check" style="color:#b45309;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">🗂️ <i>[ มะปรางเพิ่มรายละเอียดได้ที่นี่ ]</i></div>
+        </div>
+        <div class="day-task" style="color:#78350f;">
+          <div class="day-task-check" style="color:#b45309;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">🗂️ <i>[ มะปรางเพิ่มรายละเอียดได้ที่นี่ ]</i></div>
+        </div>
+      </div>
+
+      <!-- ☀️ ช่วงสาย -->
+      <div class="day-slot" style="background:#ecfdf5;color:#064e3b;">
+        <div class="day-slot-title" style="color:#047857;">☀️ ช่วงสาย (10:00 – 12:00 น.)</div>
+        <div class="day-task" style="color:#065f46;">
+          <div class="day-task-check" style="color:#047857;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">📦 <i>[ มะปรางเพิ่มรายละเอียดได้ที่นี่ ]</i></div>
+        </div>
+        <div class="day-task" style="color:#065f46;">
+          <div class="day-task-check" style="color:#047857;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">📦 <i>[ มะปรางเพิ่มรายละเอียดได้ที่นี่ ]</i></div>
+        </div>
+        <div class="day-task" style="color:#065f46;">
+          <div class="day-task-check" style="color:#047857;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">📦 <i>[ มะปรางเพิ่มรายละเอียดได้ที่นี่ ]</i></div>
+        </div>
+      </div>
+
+      <!-- 🌤️ ช่วงบ่าย -->
+      <div class="day-slot" style="background:#eff6ff;color:#1e3a8a;">
+        <div class="day-slot-title" style="color:#1d4ed8;">🌤️ ช่วงบ่าย (13:00 – 16:00 น.)</div>
+        <div class="day-task" style="color:#1e3a8a;">
+          <div class="day-task-check" style="color:#1d4ed8;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">📊 <i>[ มะปรางเพิ่มรายละเอียดได้ที่นี่ ]</i></div>
+        </div>
+        <div class="day-task" style="color:#1e3a8a;">
+          <div class="day-task-check" style="color:#1d4ed8;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">📊 <i>[ มะปรางเพิ่มรายละเอียดได้ที่นี่ ]</i></div>
+        </div>
+        <div class="day-task" style="color:#1e3a8a;">
+          <div class="day-task-check" style="color:#1d4ed8;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">📊 <i>[ มะปรางเพิ่มรายละเอียดได้ที่นี่ ]</i></div>
+        </div>
+      </div>
+
+      <!-- 🌇 ช่วงเย็น -->
+      <div class="day-slot" style="background:#fdf2f8;color:#831843;">
+        <div class="day-slot-title" style="color:#be185d;">🌇 ช่วงเย็น (16:00 น. เป็นต้นไป)</div>
+        <div class="day-task" style="color:#831843;">
+          <div class="day-task-check" style="color:#be185d;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">📝 สรุปยอดขายวันนี้ — อัพเดท Dashboard ประจำวัน<span class="day-task-tag" style="background:#fce7f3;color:#be185d;">ประจำวัน</span></div>
+        </div>
+        <div class="day-task" style="color:#831843;">
+          <div class="day-task-check" style="color:#be185d;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">🗂️ <i>[ มะปรางเพิ่มรายละเอียดได้ที่นี่ ]</i></div>
+        </div>
+        <div class="day-task" style="color:#831843;">
+          <div class="day-task-check" style="color:#be185d;" onclick="toggleCheck(this)"></div>
+          <div class="day-task-text">🗂️ <i>[ มะปรางเพิ่มรายละเอียดได้ที่นี่ ]</i></div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align:center;padding:8px 0 4px;font-size:11px;color:#a855f7;font-weight:600;">
+        👧🧒 ทีมมะปรางสู้ๆ นะจ้า! 💜✨
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- ══ Modal โปรเจค พ.ค. ══ -->
 <div class="modal-overlay" id="projModal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
@@ -2023,6 +2151,12 @@ function showList(){
 function closeModal(){
   document.getElementById('projModal').classList.remove('open');
   showList();
+}
+function closeDayModal(){
+  document.getElementById('dayModal').classList.remove('open');
+}
+function toggleCheck(el){
+  el.classList.toggle('done');
 }
 </script>
 </body>

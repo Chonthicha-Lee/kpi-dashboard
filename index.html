@@ -2160,19 +2160,7 @@ function closeDayModal(){
 (function(){
   const DAY_NAMES=['อา','จ','อ','พ','พฤ','ศ','ส'];
   const HOURS=[];
-  for(let h=7;h<=24;h++) HOURS.push(h===24?'00':String(h).padStart(2,'0'));
   const TODO_COUNT=6;
-  const H_PLACEHOLDER={
-    '07':'🌅 เช้ามา เช็ค Dashboard + รับรู้ยอดเมื่อวาน',
-    '08':'🏃 เตรียมตัว ประชุม / Morning Brief',
-    '09':'📋 ติดตามงานค้าง / ส่ง Report',
-    '12':'🍱 พักกลางวัน',
-    '13':'💼 กลับมาทำงาน',
-    '17':'📝 สรุปงานช่วงบ่าย',
-    '18':'📊 อัพเดทยอดขายวันนี้ใน Dashboard',
-    '22':'🌙 เตรียมงานพรุ่งนี้',
-    '00':'💤 เที่ยงคืน — พักผ่อน',
-  };
 
   function getKey(d){ return '2026-05-'+String(d).padStart(2,'0'); }
   function getPlan(){ return JSON.parse(localStorage.getItem('dayPlanMay69')||'{}'); }
@@ -2236,24 +2224,22 @@ function closeDayModal(){
       <div>
         <div style="font-size:11px;font-weight:800;color:#0891b2;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">🕐 Action รายชั่วโมง</div>`;
 
-    for(let h=7;h<=24;h++){
-      const hk=h===24?'00':String(h).padStart(2,'0');
-      const nextH=h===24?'00:00':h===23?'00:00':(String(h+1).padStart(2,'0')+':00');
+    // 06:00 – 05:00 (24 ชั่วโมง)
+    for(let h=6;h<=29;h++){
+      const realH=h>=24?h-24:h;
+      const hk=String(realH).padStart(2,'0');
+      const lbl=`${hk}:00`;
       const val=(data.hours?.[hk]||'').replace(/"/g,'&quot;');
-      const ph=H_PLACEHOLDER[hk]||'กรอกแผนชั่วโมงนี้...';
-      const lbl=h===24?'00:00 🌙':`${hk}:00`;
-      const isMeal=(h===12); const isEnd=(h===18||h===24);
-      const bg=isMeal?'#f0fdf4':isEnd?'#fdf4ff':'';
-      html+=`<div class="hour-row" style="${bg?'background:'+bg+';border-radius:6px;':''}">
+      html+=`<div class="hour-row">
         <div class="hour-lbl">${lbl}</div>
-        <input class="hour-input" type="text" value="${val}" placeholder="${ph}"
+        <input class="hour-input" type="text" value="${val}" placeholder=""
           onchange="saveHour('${k}','${hk}',this.value)">
       </div>`;
     }
 
     html+=`</div>
-      <div style="text-align:center;padding:12px 0 4px;font-size:10px;color:#a855f7;">
-        สู้ๆ นะมะปราง! 💜 My Melody & Kuromi เชียร์อยู่นะ ✨
+      <div style="text-align:center;padding:10px 0 4px;font-size:16px;letter-spacing:2px;">
+        🌸🎀💜🌟✨🎶🍓💫🌈🦋🎠💕🌺🎁🍰🌙⭐🌸
       </div>`;
 
     el.innerHTML=html;

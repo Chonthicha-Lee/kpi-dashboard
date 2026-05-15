@@ -495,7 +495,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
     <canvas class="day-px-char" id="kuBtn" width="28" height="36"></canvas>
     <span class="proj-btn-label">
       <span>วันๆ น้องทำอะไรบ้าง</span>
-      <span class="proj-btn-sub">📅 Daily Plan 14–31 พ.ค.</span>
+      <span class="proj-btn-sub">📅 Daily Plan 13–31 พ.ค.</span>
     </span>
   </button>
   <button class="proj-btn" id="projOpenBtn" onclick="document.getElementById('projModal').classList.add('open')">
@@ -2329,12 +2329,12 @@ function closeDayModal(){
     return p[k];
   }
 
-  let curDay=14;
+  let curDay=13;
 
   function renderTabs(){
     const el=document.getElementById('dayTabs'); if(!el)return;
     let html='';
-    for(let d=14;d<=31;d++){
+    for(let d=13;d<=31;d++){
       const dt=new Date(2026,4,d);
       const dn=DAY_NAMES[dt.getDay()];
       const wknd=(dt.getDay()===0||dt.getDay()===6);
@@ -2427,6 +2427,20 @@ function closeDayModal(){
     if(!p[k].hours) p[k].hours={};
     p[k].hours[hk]=v; setPlan(p);
   };
+
+  // ── Migration: โอนข้อมูล 14→13 และ 15→14 (ทำครั้งเดียว) ──
+  (function migrateShift(){
+    if(localStorage.getItem('dayPlanMay69_shifted')) return;
+    const p = getPlan();
+    const k14 = '2026-05-14', k15 = '2026-05-15';
+    const k13 = '2026-05-13';
+    // โอน 14 → 13 (ถ้า 13 ยังว่าง)
+    if(p[k14] && !p[k13]){ p[k13] = JSON.parse(JSON.stringify(p[k14])); }
+    // โอน 15 → 14 (เขียนทับ 14 ด้วยข้อมูลของ 15)
+    if(p[k15]){ p[k14] = JSON.parse(JSON.stringify(p[k15])); }
+    setPlan(p);
+    localStorage.setItem('dayPlanMay69_shifted','1');
+  })();
 
   window.openDayModal=function(){
     document.getElementById('dayModal').classList.add('open');

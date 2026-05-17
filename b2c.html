@@ -495,7 +495,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
     <canvas class="day-px-char" id="kuBtn" width="28" height="36"></canvas>
     <span class="proj-btn-label">
       <span>วันๆ น้องทำอะไรบ้าง</span>
-      <span class="proj-btn-sub">📅 Daily Plan 14–31 พ.ค.</span>
+      <span class="proj-btn-sub">📅 Daily Plan 17–31 พ.ค.</span>
     </span>
   </button>
   <button class="proj-btn" id="projOpenBtn" onclick="document.getElementById('projModal').classList.add('open')">
@@ -1945,7 +1945,8 @@ function mechStampHTML(){
           <tr style="border-bottom:1px solid #f0f9ff;"><td style="padding:3px 6px;">พุธ 13 พ.ค.</td><td style="padding:3px 6px;text-align:center;font-weight:700;color:#0891b2;">50 ดวง</td><td style="padding:3px 6px;text-align:center;">286,029</td><td style="padding:3px 6px;text-align:center;">869</td><td style="padding:3px 6px;text-align:center;">329.1</td></tr>
           <tr style="border-bottom:1px solid #f0f9ff;"><td style="padding:3px 6px;">พฤหัส 14 พ.ค.</td><td style="padding:3px 6px;text-align:center;font-weight:700;color:#0891b2;">70 ดวง</td><td style="padding:3px 6px;text-align:center;">355,458</td><td style="padding:3px 6px;text-align:center;">1,152</td><td style="padding:3px 6px;text-align:center;">308.6</td></tr>
           <tr style="border-bottom:1px solid #f0f9ff;"><td style="padding:3px 6px;">ศุกร์ 15 พ.ค.</td><td style="padding:3px 6px;text-align:center;font-weight:700;color:#0891b2;">50 ดวง</td><td style="padding:3px 6px;text-align:center;">280,011</td><td style="padding:3px 6px;text-align:center;">879</td><td style="padding:3px 6px;text-align:center;">318.6</td></tr>
-          <tr style="color:#94a3b8;"><td style="padding:3px 6px;">เสาร์ 16 พ.ค. 🆕</td><td style="padding:3px 6px;text-align:center;">รอข้อมูล</td><td style="padding:3px 6px;text-align:center;">309,619</td><td style="padding:3px 6px;text-align:center;">—</td><td style="padding:3px 6px;text-align:center;">—</td></tr>
+          <tr style="color:#94a3b8;"><td style="padding:3px 6px;">เสาร์ 16 พ.ค.</td><td style="padding:3px 6px;text-align:center;">รอข้อมูล</td><td style="padding:3px 6px;text-align:center;">309,619</td><td style="padding:3px 6px;text-align:center;">—</td><td style="padding:3px 6px;text-align:center;">—</td></tr>
+          <tr style="color:#94a3b8;"><td style="padding:3px 6px;">อาทิตย์ 17 พ.ค. 🆕</td><td style="padding:3px 6px;text-align:center;">รอข้อมูล</td><td style="padding:3px 6px;text-align:center;">—</td><td style="padding:3px 6px;text-align:center;">—</td><td style="padding:3px 6px;text-align:center;">—</td></tr>
         </tbody>
       </table>
     </div>`;
@@ -2367,12 +2368,12 @@ function closeDayModal(){
     return p[k];
   }
 
-  let curDay=14;
+  let curDay=17;
 
   function renderTabs(){
     const el=document.getElementById('dayTabs'); if(!el)return;
     let html='';
-    for(let d=14;d<=31;d++){
+    for(let d=17;d<=31;d++){
       const dt=new Date(2026,4,d);
       const dn=DAY_NAMES[dt.getDay()];
       const wknd=(dt.getDay()===0||dt.getDay()===6);

@@ -495,7 +495,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
     <canvas class="day-px-char" id="kuBtn" width="28" height="36"></canvas>
     <span class="proj-btn-label">
       <span>วันๆ น้องทำอะไรบ้าง</span>
-      <span class="proj-btn-sub">📅 Daily Plan 18–31 พ.ค.</span>
+      <span class="proj-btn-sub">📅 Daily Plan 13–31 พ.ค.</span>
     </span>
   </button>
   <button class="proj-btn" id="projOpenBtn" onclick="document.getElementById('projModal').classList.add('open')">
@@ -2385,13 +2385,15 @@ function closeDayModal(){
   function renderTabs(){
     const el=document.getElementById('dayTabs'); if(!el)return;
     let html='';
-    for(let d=18;d<=31;d++){
+    for(let d=13;d<=31;d++){
       const dt=new Date(2026,4,d);
       const dn=DAY_NAMES[dt.getDay()];
       const wknd=(dt.getDay()===0||dt.getDay()===6);
-      html+=`<button class="day-tab${d===curDay?' active':''}${wknd?' weekend':''}" onclick="selectDay(${d})">
+      const isPast=d<curDay;
+      html+=`<button class="day-tab${d===curDay?' active':''}${wknd?' weekend':''}" onclick="selectDay(${d})" style="${isPast?'opacity:0.45;':''}">
         <span style="font-size:13px;font-weight:800;">${d}</span>
         <span style="font-size:9px;opacity:.75;">${dn}</span>
+        ${isPast?'<span style="font-size:8px;opacity:.6;">✓</span>':''}
       </button>`;
     }
     el.innerHTML=html;

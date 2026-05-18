@@ -484,6 +484,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
   </div>
   <div class="hdr-deco">🛒✨🍈⭐</div>
   <button class="auth-logout" onclick="authLogout()" style="position:absolute;top:10px;right:14px;color:rgba(255,255,255,.6);z-index:2;">🔒 ออกจากระบบ</button>
+  <button onclick="exportPlan()" style="position:absolute;top:10px;right:140px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;z-index:2;">📤 Export บันทึก</button>
 </div>
 
 <div class="wrap">
@@ -1558,6 +1559,20 @@ function checkAuth(){
     });
     document.getElementById('p0').focus();
   }
+}
+function exportPlan(){
+  const data = localStorage.getItem('dayPlanMay69')||'{}';
+  navigator.clipboard.writeText(data).then(()=>{
+    alert('✅ Copy แล้วค่ะ!\n\nนำข้อความนี้ไปส่งให้ซันนี่ได้เลยค่ะ 🙂');
+  }).catch(()=>{
+    const ta = document.createElement('textarea');
+    ta.value = data;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('✅ Copy แล้วค่ะ!\n\nนำข้อความนี้ไปส่งให้ซันนี่ได้เลยค่ะ 🙂');
+  });
 }
 function authLogout(){
   localStorage.removeItem('b2c_auth');

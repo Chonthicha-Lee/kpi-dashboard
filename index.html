@@ -651,7 +651,11 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
 
 <!-- Daily trend mini charts -->
 <div class="card" style="margin-top:0;border-top:none;border-radius:0 0 12px 12px;padding-top:12px;">
-  <div class="sec-title" style="font-size:12px;margin-bottom:10px;">📉 Trend รายวัน พ.ค. 1–13</div>
+  <div class="sec-title" style="font-size:12px;margin-bottom:6px;">📉 Trend รายวัน พ.ค. 1–17 vs เม.ย.</div>
+  <div style="font-size:10px;color:#94a3b8;margin-bottom:8px;padding-left:2px;">
+    <span style="display:inline-block;width:22px;height:2px;background:#38bdf8;vertical-align:middle;margin-right:4px;border-radius:2px;"></span>พ.ค. &nbsp;&nbsp;
+    <span style="display:inline-block;width:22px;height:0;border-top:2px dashed #94a3b8;vertical-align:middle;margin-right:4px;"></span>เม.ย.
+  </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
     <div>
       <div style="font-size:11px;color:#64748b;font-weight:700;margin-bottom:4px;text-align:center;">💰 Sales (฿)</div>
@@ -705,12 +709,13 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
 
 <!-- Daily detail table -->
 <div class="card">
-  <div class="sec-title" style="font-size:13px;margin-bottom:10px;">📋 รายละเอียดรายวัน พ.ค. 1–13</div>
+  <div class="sec-title" style="font-size:13px;margin-bottom:10px;">📋 รายละเอียดรายวัน พ.ค. 1–17 <span style="font-size:10px;color:#94a3b8;font-weight:400;">(เทียบ เม.ย. = วันที่ตรงกัน)</span></div>
   <table>
     <thead>
       <tr>
         <th>วันที่</th>
         <th class="tr">Sales (฿)</th>
+        <th class="tr" style="color:#f59e0b;">vs เม.ย.</th>
         <th class="tr">vs LY</th>
         <th class="tr">TC (ครั้ง)</th>
         <th class="tr">TA (฿/ครั้ง)</th>
@@ -724,6 +729,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>1 พ.ค.</b> (ศ)</td>
         <td class="tr">312,146</td>
+        <td class="tr pos">+7.4%</td>
         <td class="tr pos">+3.8%</td>
         <td class="tr">926</td>
         <td class="tr">337.30</td>
@@ -735,6 +741,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>2 พ.ค.</b> (ส)</td>
         <td class="tr">322,783</td>
+        <td class="tr pos">+22.2%</td>
         <td class="tr neg">-18.4%</td>
         <td class="tr">1,000</td>
         <td class="tr">320.50</td>
@@ -746,6 +753,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>3 พ.ค.</b> (อา)</td>
         <td class="tr">319,191</td>
+        <td class="tr pos">+24.9%</td>
         <td class="tr neg">-15.7%</td>
         <td class="tr">941</td>
         <td class="tr">339.30</td>
@@ -757,6 +765,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>4 พ.ค.</b> (จ)</td>
         <td class="tr">290,696</td>
+        <td class="tr neg">-8.5%</td>
         <td class="tr neg">-12.1%</td>
         <td class="tr">941</td>
         <td class="tr">308.90</td>
@@ -768,6 +777,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>5 พ.ค.</b> (อ)</td>
         <td class="tr">284,664</td>
+        <td class="tr neg">-11.7%</td>
         <td class="tr neg">-10.7%</td>
         <td class="tr">876</td>
         <td class="tr">326.20</td>
@@ -779,6 +789,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>6 พ.ค.</b> (พ)</td>
         <td class="tr">312,295</td>
+        <td class="tr pos">+4.1%</td>
         <td class="tr neg">-2.0%</td>
         <td class="tr">908</td>
         <td class="tr">343.90</td>
@@ -790,6 +801,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>7 พ.ค.</b> (พฤ)</td>
         <td class="tr">270,645</td>
+        <td class="tr pos">+2.3%</td>
         <td class="tr neg">-14.4%</td>
         <td class="tr">837</td>
         <td class="tr">323.40</td>
@@ -801,6 +813,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>8 พ.ค.</b> (ศ)</td>
         <td class="tr">261,487</td>
+        <td class="tr pos">+0.5%</td>
         <td class="tr neg">-20.7%</td>
         <td class="tr">895</td>
         <td class="tr">292.20</td>
@@ -812,6 +825,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>9 พ.ค.</b> (ส)</td>
         <td class="tr">316,527</td>
+        <td class="tr pos">+28.8%</td>
         <td class="tr neg">-10.1%</td>
         <td class="tr">920</td>
         <td class="tr">344.10</td>
@@ -823,6 +837,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>10 พ.ค.</b> (อา)</td>
         <td class="tr">378,308</td>
+        <td class="tr pos">+32.3%</td>
         <td class="tr neg">-14.3%</td>
         <td class="tr">957</td>
         <td class="tr">395.30</td>
@@ -834,6 +849,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>11 พ.ค.</b> (จ)</td>
         <td class="tr">285,470</td>
+        <td class="tr neg">-17.1%</td>
         <td class="tr neg">-17.7%</td>
         <td class="tr">942</td>
         <td class="tr">303.00</td>
@@ -845,6 +861,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>12 พ.ค.</b> (อ)</td>
         <td class="tr">313,515</td>
+        <td class="tr neg">-32.7%</td>
         <td class="tr neg">-14.2%</td>
         <td class="tr">961</td>
         <td class="tr">326.20</td>
@@ -856,6 +873,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>13 พ.ค.</b> (พ)</td>
         <td class="tr">286,029</td>
+        <td class="tr neg">-27.3%</td>
         <td class="tr neg">-21.6%</td>
         <td class="tr">869</td>
         <td class="tr">329.10</td>
@@ -867,6 +885,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-good"></span><b>14 พ.ค.</b> (พฤ)</td>
         <td class="tr">355,458</td>
+        <td class="tr neg">-4.3%</td>
         <td class="tr pos">+10.3%</td>
         <td class="tr">1,152</td>
         <td class="tr">308.60</td>
@@ -878,6 +897,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>15 พ.ค.</b> (ศ)</td>
         <td class="tr">280,011</td>
+        <td class="tr neg">-12.5%</td>
         <td class="tr neg">-8.7%</td>
         <td class="tr">879</td>
         <td class="tr">318.60</td>
@@ -889,6 +909,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>16 พ.ค.</b> (ส)</td>
         <td class="tr">309,619</td>
+        <td class="tr neg">-4.8%</td>
         <td class="tr neg">-7.3%</td>
         <td class="tr">861</td>
         <td class="tr">359.60</td>
@@ -900,6 +921,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr>
         <td><span class="day-dot dot-bad"></span><b>17 พ.ค.</b> (อา)</td>
         <td class="tr">382,722</td>
+        <td class="tr pos">+25.1%</td>
         <td class="tr neg">-14.0%</td>
         <td class="tr">1,076</td>
         <td class="tr">355.70</td>
@@ -911,6 +933,7 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
       <tr style="background:#e0f2fe;font-weight:700;">
         <td>เฉลี่ย/รวม (17 วัน)</td>
         <td class="tr">310,680</td>
+        <td class="tr neg">-1.0%</td>
         <td class="tr neg">-10.6%</td>
         <td class="tr">938</td>
         <td class="tr">331.3</td>
@@ -1193,46 +1216,54 @@ const miniBase = {responsive:true, maintainAspectRatio:false,
 
 new Chart(document.getElementById('mSales'),{
   type:'line',
-  data:{labels:dayLbl, datasets:[{
-    data:[312146,322783,319191,290696,284664,312295,270645,261487,316527,378308,285470,313515,286029,355458,280011,309619,382722],
-    borderColor:'#38bdf8', backgroundColor:'rgba(56,189,248,0.12)',
-    pointRadius:3, pointHoverRadius:5, fill:true, tension:.3, borderWidth:2
-  }]},
-  options:{...miniBase, plugins:{...miniBase.plugins, tooltip:{callbacks:{label:c=>'฿'+c.raw.toLocaleString()}}}}
+  data:{labels:dayLbl, datasets:[
+    {data:[312146,322783,319191,290696,284664,312295,270645,261487,316527,378308,285470,313515,286029,355458,280011,309619,382722],
+     label:'พ.ค.',borderColor:'#38bdf8', backgroundColor:'rgba(56,189,248,0.12)',
+     pointRadius:3, pointHoverRadius:5, fill:true, tension:.3, borderWidth:2},
+    {data:[290550,264112,255574,317763,322472,300046,264561,260230,245797,285811,344271,466032,393570,371566,320194,325100,305844],
+     label:'เม.ย.',borderColor:'#94a3b8', borderDash:[5,3], borderWidth:1.5, pointRadius:2, fill:false, tension:.3}
+  ]},
+  options:{...miniBase, plugins:{...miniBase.plugins, tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+c.raw.toLocaleString()}}}}
 });
 
 new Chart(document.getElementById('mTC'),{
   type:'line',
   data:{labels:dayLbl, datasets:[
     {data:[926,1000,941,941,876,908,837,895,920,957,942,961,869,1152,879,861,1076],
-     borderColor:'#818cf8', backgroundColor:'rgba(129,140,248,0.12)',
+     label:'พ.ค.',borderColor:'#818cf8', backgroundColor:'rgba(129,140,248,0.12)',
      pointRadius:3, pointHoverRadius:5, fill:true, tension:.3, borderWidth:2},
+    {data:[793,778,789,902,951,944,818,795,798,952,953,1173,1072,1019,994,970,882],
+     label:'เม.ย.',borderColor:'#94a3b8', borderDash:[5,3], borderWidth:1.5, pointRadius:2, fill:false, tension:.3},
     {data:[1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200],
-     borderColor:'#dc2626', borderDash:[5,3], borderWidth:1.5, pointRadius:0, fill:false}
+     label:'เป้า',borderColor:'#dc2626', borderDash:[4,4], borderWidth:1.5, pointRadius:0, fill:false}
   ]},
-  options:{...miniBase, plugins:{...miniBase.plugins, tooltip:{callbacks:{label:c=>c.raw+' ครั้ง'}}}}
+  options:{...miniBase, plugins:{...miniBase.plugins, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+' ครั้ง'}}}}
 });
 
 new Chart(document.getElementById('mTA'),{
   type:'line',
   data:{labels:dayLbl, datasets:[
     {data:[337.3,320.5,339.3,308.9,326.2,343.9,323.4,292.2,344.1,395.3,303.0,326.2,329.1,308.6,318.6,359.6,355.7],
-     borderColor:'#34d399', backgroundColor:'rgba(52,211,153,0.12)',
+     label:'พ.ค.',borderColor:'#34d399', backgroundColor:'rgba(52,211,153,0.12)',
      pointRadius:3, pointHoverRadius:5, fill:true, tension:.3, borderWidth:2},
+    {data:[366.4,339.5,323.9,352.3,339.1,317.8,323.4,327.3,308.0,300.2,361.2,397.3,367.1,364.6,322.1,335.2,346.8],
+     label:'เม.ย.',borderColor:'#94a3b8', borderDash:[5,3], borderWidth:1.5, pointRadius:2, fill:false, tension:.3},
     {data:[380,380,380,380,380,380,380,380,380,380,380,380,380,380,380,380,380],
-     borderColor:'#dc2626', borderDash:[5,3], borderWidth:1.5, pointRadius:0, fill:false}
+     label:'เป้า',borderColor:'#dc2626', borderDash:[4,4], borderWidth:1.5, pointRadius:0, fill:false}
   ]},
-  options:{...miniBase, plugins:{...miniBase.plugins, tooltip:{callbacks:{label:c=>c.raw+' ฿'}}}}
+  options:{...miniBase, plugins:{...miniBase.plugins, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+' ฿'}}}}
 });
 
 new Chart(document.getElementById('mMargin'),{
   type:'line',
-  data:{labels:dayLbl, datasets:[{
-    data:[9.30,9.50,11.70,9.90,11.20,10.60,12.60,12.20,10.80,11.70,12.40,12.30,12.00,-0.50,11.90,12.80,12.80],
-    borderColor:'#fbbf24', backgroundColor:'rgba(251,191,36,0.12)',
-    pointRadius:3, pointHoverRadius:5, fill:true, tension:.3, borderWidth:2
-  }]},
-  options:{...miniBase, plugins:{...miniBase.plugins, tooltip:{callbacks:{label:c=>c.raw+'%'}}}}
+  data:{labels:dayLbl, datasets:[
+    {data:[9.30,9.50,11.70,9.90,11.20,10.60,12.60,12.20,10.80,11.70,12.40,12.30,12.00,-0.50,11.90,12.80,12.80],
+     label:'พ.ค.',borderColor:'#fbbf24', backgroundColor:'rgba(251,191,36,0.12)',
+     pointRadius:3, pointHoverRadius:5, fill:true, tension:.3, borderWidth:2},
+    {data:[11.8,12.7,11.0,12.6,10.6,7.9,13.0,10.9,11.3,10.2,12.2,12.5,13.1,8.8,12.4,11.2,13.2],
+     label:'เม.ย.',borderColor:'#94a3b8', borderDash:[5,3], borderWidth:1.5, pointRadius:2, fill:false, tension:.3}
+  ]},
+  options:{...miniBase, plugins:{...miniBase.plugins, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}}}
 });
 
 // ── Pixel Cat Animation ──

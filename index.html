@@ -2388,6 +2388,16 @@ function closeDayModal(){
   const TODO_COUNT=6;
 
   function getKey(d){ return '2026-05-'+String(d).padStart(2,'0'); }
+  // ── Seed data (backup ข้อมูลที่บันทึกไว้) ──
+  (function seedPlan(){
+    if(localStorage.getItem('dayPlanMay69_seeded')) return;
+    const existing = JSON.parse(localStorage.getItem('dayPlanMay69')||'{}');
+    const seed = {"2026-05-13":{"todos":["ทำงาน daily สาขา","โทรหาลูกค้า Makro","ส่งของ NRK","","",""],"done":[true,true,true,false,false,false],"hours":{"09":"เข้าสาขา","10":"เข้าสาขา","11":"เข้าสาขา + ส่งของ","12":"พักเที่ยง","13":"โทรหาลูกค้า Makro","14":"โทรหาลูกค้า Makro","15":"เข้า Hyper เตรียมของส่ง","16":"เตรียมของ รอโหลดของนานมาก -_-;;","17":"โทรเคลียร์ใจกับพี่อุ๊ Makro","18":"ส่งของ NRK","19":"ส่งของ NRK","20":"ส่งของ NRK","21":"แวะทานข้าวเย็นกับพี่มิวที่ครัวชะไม และไปส่งพี่มิวที่บ้าน"}},"2026-05-14":{"todos":["","เข้าสาขา ปริ้นท์สมุดสะสมสแตมป์","ปริ้นท์สมุดสะสมสแตมป์","ทำ Leaflet แจก","ส่งแผนให้พี่โ่ด่ง","Weekly"],"done":[false,false,false,false,false,false],"hours":{"09":"ประชุม Makro","10":"เข้าสาขา ติดตามสินค้าพี่ภัทร","11":"เข้าสาขา ปริ้น AW material ทั้งหมด พี่ตุ้มไม่เข้า","12":"พักเที่ยง","13":"ทำแผนเสนอพี่โด่ง","14":"ทำแผนเสนอพี่โด่ง","15":"ทำ Leaflet กิจกรรมเพิ่มเติม","17":"เปิด CV ร้านกัสจัง พัดลม 30 ตัว","18":"ทานข้าว","19":"เตรียมแผนประชุม","20":"Weekly","21":"Weekly","22":"Weekly","23":"Weekly"}},"2026-05-15":{"todos":["","เข้าสาขา ปริ้นท์สมุดสะสมสแตมป์","ปริ้นท์สมุดสะสมสแตมป์","ทำ Leaflet แจก","ส่งแผนให้พี่โ่ด่ง","Weekly"],"done":[false,false,false,false,false,false],"hours":{"09":"ส่งของที่ hyper","10":"ทำเรื่อง Transfer ขิงที่ไฮเปอร์","11":"ปรับแผนและส่งแผนเสนอพี่โด่ง","12":"พักเที่ยง","13":"เข้าสาขา","14":"เข้าสาขา","15":"เข้าสาขา","17":"","18":"","19":"","20":"","21":"","22":"","23":""}},"2026-05-16":{"todos":["วันหยุด","","","","",""],"done":[false,false,false,false,false,false],"hours":{}},"2026-05-17":{"todos":["","","","","",""],"done":[false,false,false,false,false,false],"hours":{"09":"","10":"","11":"ติดตามของเข้าที่สาขา","12":"พักเที่ยง","13":"เข้าสาขา","14":"คุยกับ KFC","15":"เข้าพบร้านมินิคาเฟ่","16":"Transfer สินค้าไป ไฮเปอร์","17":"Transfer สินค้าไป ไฮเปอร์","18":"Transfer สินค้าไป ไฮเปอร์"}},"2026-05-18":{"todos":["ติดตามเรื่องตู้แช่","จัดชิม","กิจกรรมทุเรียน","จัดโซน Hard E","จัดโซน Provision","สั่งไอติมรสใหม่"],"done":[false,false,false,false,false,false],"hours":{"10":"เข้าสาขา","11":"เข้าสาขา","12":"พักเที่ยง","13":"เตรียมของไฮเปอร์","14":"ส่งของพัดลม","15":"ส่งของไท่ซาน","16":"ส่งของปั๊กซัง","18":"ทรานส์เฟอร์ของมาที่ดำเนิน","19":"ทานข้าว"}}};
+    // Merge: existing data takes priority, seed fills in missing days
+    Object.keys(seed).forEach(k=>{ if(!existing[k]) existing[k]=seed[k]; });
+    localStorage.setItem('dayPlanMay69', JSON.stringify(existing));
+    localStorage.setItem('dayPlanMay69_seeded','1');
+  })();
   function getPlan(){ return JSON.parse(localStorage.getItem('dayPlanMay69')||'{}'); }
   function setPlan(p){ localStorage.setItem('dayPlanMay69',JSON.stringify(p)); }
   function ensureDay(p,k){

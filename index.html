@@ -611,10 +611,11 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
 
 <!-- Daily trend mini charts -->
 <div class="card" style="margin-top:0;border-top:none;border-radius:0 0 12px 12px;padding-top:12px;">
-  <div class="sec-title" style="font-size:12px;margin-bottom:6px;">📉 Trend รายวัน พ.ค. 1–20 vs เม.ย.</div>
+  <div class="sec-title" style="font-size:12px;margin-bottom:6px;">📉 Trend รายวัน พ.ค. 1–20 vs เม.ย. vs LY</div>
 <div style="font-size:10px;color:#94a3b8;margin-bottom:8px;padding-left:2px;">
   <span style="display:inline-block;width:22px;height:2px;background:#38bdf8;vertical-align:middle;margin-right:4px;border-radius:2px;"></span>พ.ค. &nbsp;&nbsp;
-  <span style="display:inline-block;width:22px;height:0;border-top:2px dashed #94a3b8;vertical-align:middle;margin-right:4px;"></span>เม.ย.
+  <span style="display:inline-block;width:22px;height:0;border-top:2px dashed #94a3b8;vertical-align:middle;margin-right:4px;"></span>เม.ย. &nbsp;&nbsp;
+  <span style="display:inline-block;width:22px;height:0;border-top:2px dotted #f97316;vertical-align:middle;margin-right:4px;"></span><span style="color:#f97316;">LY</span> <span style="font-size:9px;">(Sales & Margin%)</span>
 </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
     <div>
@@ -980,17 +981,20 @@ tr:hover td{background:linear-gradient(90deg,#f8fcff,#f0f9ff);}
   <div class="card" style="border-top:3px solid var(--purple);">
     <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:10px;">📊 Scan Margin% — ยังอยู่ในเกณฑ์ดี</div>
     <p style="font-size:12px;color:var(--muted);line-height:1.7;">
-      Margin% พ.ค. เฉลี่ย <b style="color:var(--green);">10.95%</b> ใกล้เคียงกับ เม.ย. (10.94%) และ มี.ค. (10.91%)<br><br>
-      ดีที่สุดวันที่ 7 (12.6%) วันพฤหัส — <b>สินค้า Fresh มีส่วนช่วย Margin</b><br><br>
-      ⚠️ ก.พ. มี Margin ต่ำสุดที่ 10.26% — ควรรักษา Margin% ให้สม่ำเสมอในช่วงที่เหลือของพ.ค.
+      Margin% พ.ค. เฉลี่ย <b style="color:var(--amber);">10.95%</b> vs LY เฉลี่ย <b style="color:var(--green);">13.26%</b> — ต่ำกว่า LY ถึง <b style="color:var(--red);">-2.31pp</b><br><br>
+      📉 <b>19 จาก 20 วัน</b> Margin ต่ำกว่า LY — โดยเฉพาะ Sat–Sun (LY ~15% vs TY ~11%) แสดงว่า <b>สินค้าโปรโมชั่น Weekend ปีนี้ดึง Margin ลง</b><br><br>
+      ⚠️ วันที่ 14 พ.ค. (พฤ): TY = -0.5% vs LY = 13.7% <b style="color:var(--red);">(-14.2pp)</b> — ผิดปกติมาก ต้องตรวจสอบด่วน
     </p>
   </div>
   <div class="card" style="border-top:3px solid var(--red);">
     <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px;">⚠️ KL / Bad / RTC — ต้องควบคุมอย่างต่อเนื่อง</div>
     <p style="font-size:12px;color:var(--muted);line-height:1.7;">
-      %KL เฉลี่ย <b>-2.31%</b> | %Bad <b>-1.13%</b> | %RTC <b>-0.96%</b><br><br>
-      วันที่ 9 พ.ค. มี %KL สูงสุด (-3.10%) และ %Bad สูง (-2.20%) — อาจเกิดจาก <b>Fresh Food หมดอายุช่วงสุดสัปดาห์</b><br><br>
-      จาก KL Sheet: BAKERY มี RTC% สูงสุด (-17 ถึง -19%) → <b>ลดการสั่งหรือเพิ่มการ Mark Down</b>
+      <span style="font-size:10.5px;font-weight:700;color:#64748b;">TY vs LY เฉลี่ย 20 วัน:</span><br>
+      %KL &nbsp;: TY <b>-2.21%</b> vs LY -1.95% → <b style="color:var(--red);">-0.26pp</b><br>
+      %Bad &nbsp;: TY <b>-1.13%</b> vs LY -0.60% → <b style="color:var(--red);">-0.54pp</b> ⚠️<br>
+      %UKL: TY <b>-0.84%</b> vs LY -0.15% → <b style="color:var(--red);">-0.69pp</b> ⚠️<br>
+      %RTC &nbsp;: TY <b>-1.05%</b> vs LY -1.33% → <b style="color:var(--green);">+0.28pp</b> ✅<br><br>
+      📌 <b>%Bad และ %UKL แย่ลงจาก LY มาก</b> — วันที่ 9 พ.ค. (ส) Bad สูงสุด -2.2% สาเหตุหลัก: <b>Fresh Food หมดอายุ Weekend</b> → เพิ่ม Mark Down ก่อน 16.00 น.
     </p>
   </div>
 </div>
@@ -1217,7 +1221,9 @@ new Chart(document.getElementById('mSales'),{
      label:'พ.ค.',borderColor:'#38bdf8', backgroundColor:'rgba(56,189,248,0.12)',
      pointRadius:3, pointHoverRadius:5, fill:true, tension:.3, borderWidth:2},
     {data:[290550,264112,255574,317763,322472,300046,264561,260230,245797,285811,344271,466032,393570,371566,320194,325100,305844,281999,503825,293015],
-     label:'เม.ย.',borderColor:'#94a3b8', borderDash:[5,3], borderWidth:1.5, pointRadius:2, fill:false, tension:.3}
+     label:'เม.ย.',borderColor:'#94a3b8', borderDash:[5,3], borderWidth:1.5, pointRadius:2, fill:false, tension:.3},
+    {data:[300719,395567,378637,330712,318773,318668,316174,329744,352088,441433,346865,365402,364833,322265,306693,334001,445026,283277,320142,300709],
+     label:'LY',borderColor:'#f97316', borderDash:[2,3], borderWidth:1.5, pointRadius:2, fill:false, tension:.3}
   ]},
   options:{...miniBase, plugins:{...miniBase.plugins, tooltip:{callbacks:{label:c=>c.dataset.label+': ฿'+c.raw.toLocaleString()}}}}
 });
@@ -1257,7 +1263,9 @@ new Chart(document.getElementById('mMargin'),{
      label:'พ.ค.',borderColor:'#fbbf24', backgroundColor:'rgba(251,191,36,0.12)',
      pointRadius:3, pointHoverRadius:5, fill:true, tension:.3, borderWidth:2},
     {data:[11.8,12.7,11.0,12.6,10.6,7.9,13.0,10.9,11.3,10.2,12.2,12.5,13.1,8.8,12.4,11.2,13.2,11.5,8.3,11.8],
-     label:'เม.ย.',borderColor:'#94a3b8', borderDash:[5,3], borderWidth:1.5, pointRadius:2, fill:false, tension:.3}
+     label:'เม.ย.',borderColor:'#94a3b8', borderDash:[5,3], borderWidth:1.5, pointRadius:2, fill:false, tension:.3},
+    {data:[11.5,11.6,12.9,12.0,12.6,11.9,12.8,15.5,15.0,15.2,14.1,13.1,13.9,13.7,13.9,13.5,13.8,12.4,13.1,12.6],
+     label:'LY',borderColor:'#f97316', borderDash:[2,3], borderWidth:1.5, pointRadius:2, fill:false, tension:.3}
   ]},
   options:{...miniBase, plugins:{...miniBase.plugins, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}}}
 });
